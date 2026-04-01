@@ -1,0 +1,26 @@
+<div class="player-edit-container">
+  <h1 class="player-edit-title">Speler Bewerken</h1>
+
+  <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
+    <label for="firstName">Voornaam</label>
+    <input id="firstName" formControlName="firstName" type="text" required />
+
+    <label for="lastName">Achternaam</label>
+    <input id="lastName" formControlName="lastName" type="text" required />
+
+    <label for="position">Positie</label>
+    <select id="position" formControlName="position" required>
+      <option *ngFor="let position of positions" [value]="position">{{ position }}</option>
+    </select>
+
+    <label for="birthdate">Geboortedatum</label>
+    <input id="birthdate" formControlName="birthdate" type="date" required />
+
+    <label for="profileImageUrl">Profielfoto URL</label>
+    <input id="profileImageUrl" formControlName="profileImageUrl" type="text" />
+
+    <button type="submit" [disabled]="loading || playerForm.invalid">Update Speler</button>
+  </form>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+</div>

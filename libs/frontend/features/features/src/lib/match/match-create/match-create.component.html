@@ -1,0 +1,59 @@
+<div class="match-create-container">
+
+  <div *ngIf="loading" class="loading-spinner">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <h2>Create Match</h2>
+
+    <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-group">
+        <label for="home_club_id">Home Club</label>
+        <select id="home_club_id" formControlName="home_club_id">
+          <option value="">Select home club...</option>
+          <option *ngFor="let club of clubs" [value]="club._id">{{ club.name }}</option>
+        </select>
+        <div *ngIf="matchForm.get('home_club_id')?.invalid && matchForm.get('home_club_id')?.touched" class="error-message">
+          Home club is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="away_club_id">Away Club</label>
+        <select id="away_club_id" formControlName="away_club_id">
+          <option value="">Select away club...</option>
+          <option *ngFor="let club of clubs" [value]="club._id">{{ club.name }}</option>
+        </select>
+        <div *ngIf="matchForm.get('away_club_id')?.invalid && matchForm.get('away_club_id')?.touched" class="error-message">
+          Away club is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" formControlName="location" placeholder="e.g. Amsterdam Arena" />
+        <div *ngIf="matchForm.get('location')?.invalid && matchForm.get('location')?.touched" class="error-message">
+          Location is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="date">Match Date & Time</label>
+        <input type="datetime-local" id="date" formControlName="date" />
+        <div *ngIf="matchForm.get('date')?.invalid && matchForm.get('date')?.touched" class="error-message">
+          A valid date & time is required.
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="matchForm.invalid || loading">
+        Create Match
+      </button>
+    </form>
+  </div>
+</div>

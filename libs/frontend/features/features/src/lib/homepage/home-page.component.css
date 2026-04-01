@@ -1,0 +1,196 @@
+html, body {
+  background-color: #0f1f17;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: #ffffff;
+  min-height: 100%;
+}
+
+.home-container {
+  padding: 4rem 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: #ccc;
+}
+
+.page-title span {
+  color: #3fd887;
+}
+
+.intro {
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #ddd;
+}
+
+.hero-buttons {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.hero-buttons button {
+  margin: 0.5rem;
+  padding: 1rem 2rem;
+  background-color: #3fd887;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.hero-buttons button:hover {
+  background-color: #30b574;
+}
+
+.section {
+  margin-top: 4rem;
+}
+
+.section h2 {
+  font-size: 1.6rem;
+  color: #ccc;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  padding-left: 1rem;
+  border-left: 4px solid #3fd887;
+}
+
+.card-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+}
+
+.match-card {
+  background-color: #1b2c24;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.match-card:hover {
+  transform: translateY(-6px);
+}
+
+.match-teams {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9rem;
+  color: white
+}
+
+.team img {
+  height: 44px;
+  margin-bottom: 0.3rem;
+}
+
+.vs {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white
+}
+
+.match-info {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  color: #ccc;
+}
+
+.player-card {
+  background-color: #1b2c24;
+  padding: 2rem 1.5rem;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.player-card:hover {
+  transform: translateY(-6px);
+}
+
+.player-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.player-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #3fd887;
+}
+
+.player-info h3 {
+  margin: 0.5rem 0 0.3rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.player-info .position {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 0.9rem;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat strong {
+  font-size: 1.4rem;
+  display: block;
+  color: white;
+}
+
+.stat span {
+  font-size: 0.75rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.match-card,
+.player-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}

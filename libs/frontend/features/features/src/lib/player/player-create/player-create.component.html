@@ -1,0 +1,63 @@
+<div class="player-create-container">
+  <h2>Create Player</h2>
+
+  <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input id="firstName" formControlName="firstName" />
+      <div *ngIf="playerForm.get('firstName')?.invalid && playerForm.get('firstName')?.touched" class="error-message">
+        First Name is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input id="lastName" formControlName="lastName" />
+      <div *ngIf="playerForm.get('lastName')?.invalid && playerForm.get('lastName')?.touched" class="error-message">
+        Last Name is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="position">Position</label>
+      <select id="position" formControlName="position">
+        <option value="">Select position...</option>
+        <option *ngFor="let pos of positions" [value]="pos">{{ pos }}</option>
+      </select>
+      <div *ngIf="playerForm.get('position')?.invalid && playerForm.get('position')?.touched" class="error-message">
+        Position is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="birthdate">Birthdate</label>
+      <input id="birthdate" type="date" formControlName="birthdate" />
+      <div *ngIf="playerForm.get('birthdate')?.invalid && playerForm.get('birthdate')?.touched" class="error-message">
+        Birthdate is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="profileImageUrl">Profile Image URL</label>
+      <input
+        id="profileImageUrl"
+        formControlName="profileImageUrl"
+        placeholder="/assets/footballplayer.png"
+      />
+    </div>
+
+    <div class="image-preview">
+      <label>Preview:</label><br />
+      <img
+        [src]="playerForm.get('profileImageUrl')?.value || defaultImage"
+        alt="Preview"
+        width="100"
+        height="100"
+      />
+    </div>
+
+    <button type="submit" [disabled]="playerForm.invalid">Create Player</button>
+  </form>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+</div>

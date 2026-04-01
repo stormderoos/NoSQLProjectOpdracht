@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+*{
+    margin: o;
+    padding:0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+/* .a-component, .b-component{
+    padding:10px;
+    border: 2px solid blue;
+}
+
+.a-component{
+    background-color: burlywood;
+    min-height: 200px;
+}
+.b-component{
+    background-color: cadetblue;
+    height: 300px;
+} */

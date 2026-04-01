@@ -1,0 +1,26 @@
+<div class="user-list-container">
+  <div *ngIf="loading" class="loading">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && users.length === 0" class="no-users">
+    <p>No users found.</p>
+  </div>
+
+  <div class="user-cards" *ngIf="!loading && users.length > 0">
+    <div class="user-card" *ngFor="let user of users">
+      <img [src]="user.profileImgUrl" alt="{{ user.username }}" class="user-img" />
+      <div class="user-details">
+        <h3>{{ user.username }}</h3>
+        <p>{{ user.email }}</p>
+        <button 
+          *ngIf="user.id && userRole === 'admin'" 
+          [routerLink]="['/useredit', user.id]" 
+          class="user-edit"
+        >
+          Edit
+        </button>  
+      </div>
+    </div>
+  </div>
+</div>

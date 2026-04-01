@@ -1,0 +1,136 @@
+html, body {
+  background-color: #0f1f17;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.loading-indicator {
+  text-align: center;
+  font-style: italic;
+  color: #3fd887;
+  margin-top: 20px;
+}
+
+.actions {
+  text-align: right;
+  margin: 20px 40px 10px;
+}
+
+.actions button {
+  padding: 10px 15px;
+  background-color: #2d0066;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.actions button:hover {
+  background-color: #4c0099;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 14px;
+  width: 250px;
+  border: 1px solid #3fd887;
+  border-radius: 5px;
+  background-color: #1b2c24;
+  color: #fff;
+}
+
+.search-bar input::placeholder {
+  color: #aaa;
+}
+
+.search-bar button {
+  padding: 10px 16px;
+  background-color: #3fd887;
+  color: #0f1f17;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #30b574;
+}
+
+.player-table-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  font-size: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.player-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  background-color: #2d0066;
+  color: white;
+  padding: 15px 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.player-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #1b2c24;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.player-row span {
+  color: white;
+}
+
+.player-row:nth-child(even) {
+  background-color: #192520;
+}
+
+.player-row:hover {
+  background-color: #26352c;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: white;
+}
+
+
+
+.player-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3fd887;
+}
+
+.no-players-message {
+  text-align: center;
+  color: white;
+  font-style: italic;
+  margin-top: 40px;
+}

@@ -1,0 +1,142 @@
+.club-create-container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #1b2c24;
+  border-radius: 1rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+}
+
+h2 {
+  text-align: center;
+  color: #3fd887;
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+input[type="text"],
+input[type="url"],
+select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  background-color: #0f1f17;
+  color: #fff;
+  border: 1px solid #3fd887;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #55e3a0;
+  box-shadow: 0 0 6px rgba(63, 216, 135, 0.6);
+}
+
+.is-invalid {
+  border-color: #ff6b6b !important;
+}
+
+.invalid-feedback {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary {
+  background-color: #444;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #666;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+  margin-left: 10px;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.btn-primary {
+  background-color: #3fd887;
+  color: #0f1f17;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: #30b574;
+}
+
+.btn-primary:disabled {
+  background-color: #666;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.added-players {
+  margin-top: 25px;
+}
+
+.added-players h4 {
+  margin-bottom: 10px;
+  color: #3fd887;
+}
+
+.added-players ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.added-players li {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f1f17;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #3fd88733;
+}
+
+.alert {
+  margin-top: 15px;
+  background-color: #ff6b6b22;
+  border: 1px solid #ff6b6b55;
+  color: #ff6b6b;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: center;
+}

@@ -1,0 +1,60 @@
+<ul class="links">
+  <li class="logo">
+    <a href="#"><img src="/assets/WebFootballLogo.png" alt="Web Football Logo" /></a>
+  </li>
+  <li>
+    <a routerLink="/homepage" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a>
+  </li>
+
+  <li class="dropdown">
+    <a href="#" class="dropbtn">
+      Manage
+      <span class="dropdown-arrow">&#9662;</span> 
+    </a>
+    <div class="dropdown-content">
+      <a routerLink="/clublist">Clubs</a>
+      <a routerLink="/matches">Matches</a>
+      <a routerLink="/players">Players</a>
+    </div>
+  </li>
+
+  <li>
+    <a 
+      routerLink="/userlist"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      >Users</a
+    >
+  </li>
+
+  <!-- Search bar -->
+  <li class="search-bar">
+    <input type="text" placeholder="Search..." class="search-input" />
+  </li>
+
+  <li>
+    <a 
+      routerLink="/about"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      >about</a
+    >
+  </li>
+
+  <li class="user-dropdown">
+    <a href="#" class="user-icon">
+      <img src="/assets/user-icon.png" alt="User Icon" />
+    </a>
+    <div class="dropdown-content">
+      <ng-container *ngIf="isLoggedIn(); else loggedOut">
+        <a routerLink="/profile">Profiel</a>
+        <a (click)="logout()">Uitloggen</a>
+      </ng-container>
+  
+      <ng-template #loggedOut>
+        <a routerLink="/register">Registreren</a>
+        <a routerLink="/login">Inloggen</a>
+      </ng-template>
+    </div>
+  </li>
+</ul>

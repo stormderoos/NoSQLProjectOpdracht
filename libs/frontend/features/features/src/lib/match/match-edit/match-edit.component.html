@@ -1,0 +1,127 @@
+<form #matchForm="ngForm" (ngSubmit)="onSubmit(matchForm)">
+  <div class="general-section">
+    <h2>Match Details</h2>
+    <div class="form-row">
+      <label for="homeTeamId">Home Team:</label>
+      <select id="homeTeamId" name="homeTeamId" [(ngModel)]="match.homeTeamId" required 
+              (change)="loadPlayersForTeam(match.homeTeamId, 'home')">
+        <option value="">Selecteer club...</option>
+        <option *ngFor="let club of clubs" [value]="club._id">{{ club.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="awayTeamId">Away Team:</label>
+      <select id="awayTeamId" name="awayTeamId" [(ngModel)]="match.awayTeamId" required 
+              (change)="loadPlayersForTeam(match.awayTeamId, 'away')">
+        <option value="">Selecteer club...</option>
+        <option *ngFor="let club of clubs" [value]="club._id">{{ club.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-row score-row">
+      <div>
+        <label for="homeScore">Home Score:</label>
+        <input id="homeScore" name="homeScore" type="number" [(ngModel)]="match.homeScore" 
+               min="0" placeholder="Voer home score in">
+      </div>
+      <div>
+        <label for="awayScore">Away Score:</label>
+        <input id="awayScore" name="awayScore" type="number" [(ngModel)]="match.awayScore" 
+               min="0" placeholder="Voer away score in">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="matchDate">Date en time:</label>
+      <input id="matchDate" name="matchDate" type="datetime-local" [(ngModel)]="match.matchDate" required>
+    </div>
+
+    <div class="form-row">
+      <label for="location">Location:</label>
+      <input id="location" name="location" type="text" [(ngModel)]="match.location" required>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="team-details">
+    <div class="team-column">
+      <h3>Home Team Details</h3>
+
+      <div class="dynamic-section">
+        <h4>Scorers</h4>
+        <div *ngFor="let scorer of match.homeScorers; let i = index" class="dynamic-entry">
+          <select name="homeScorerId{{i}}" [(ngModel)]="scorer.playerId" required>
+            <option value="">Selecteer speler...</option>
+            <option *ngFor="let player of homePlayers" [value]="player._id">
+              {{ player.firstName }} {{ player.lastName }}
+            </option>
+          </select>
+          <input name="homeScorerGoals{{i}}" type="number" [(ngModel)]="scorer.goals" min="1" 
+                 required placeholder="Aantal goals">
+          <button type="button" (click)="removeHomeScorer(i)">Verwijder</button>
+        </div>
+        <button type="button" (click)="addHomeScorer()">Voeg Home Scorer toe</button>
+      </div>
+
+      <div class="dynamic-section">
+        <h4>Assisters</h4>
+        <div *ngFor="let assister of match.homeAssisters; let i = index" class="dynamic-entry">
+          <select name="homeAssisterId{{i}}" [(ngModel)]="assister.playerId" required>
+            <option value="">Selecteer speler...</option>
+            <option *ngFor="let player of homePlayers" [value]="player._id">
+              {{ player.firstName }} {{ player.lastName }}
+            </option>
+          </select>
+          <input name="homeAssisterCount{{i}}" type="number" [(ngModel)]="assister.assists" min="1" 
+                 required placeholder="Aantal assists">
+          <button type="button" (click)="removeHomeAssister(i)">Verwijder</button>
+        </div>
+        <button type="button" (click)="addHomeAssister()">Voeg Home Assister toe</button>
+      </div>
+    </div>
+
+    <div class="team-column">
+      <h3>Away Team Details</h3>
+
+      <div class="dynamic-section">
+        <h4>Scorers</h4>
+        <div *ngFor="let scorer of match.awayScorers; let i = index" class="dynamic-entry">
+          <select name="awayScorerId{{i}}" [(ngModel)]="scorer.playerId" required>
+            <option value="">Selecteer speler...</option>
+            <option *ngFor="let player of awayPlayers" [value]="player._id">
+              {{ player.firstName }} {{ player.lastName }}
+            </option>
+          </select>
+          <input name="awayScorerGoals{{i}}" type="number" [(ngModel)]="scorer.goals" min="1" 
+                 required placeholder="Aantal goals">
+          <button type="button" (click)="removeAwayScorer(i)">Verwijder</button>
+        </div>
+        <button type="button" (click)="addAwayScorer()">Voeg Away Scorer toe</button>
+      </div>
+
+      <div class="dynamic-section">
+        <h4>Assisters</h4>
+        <div *ngFor="let assister of match.awayAssisters; let i = index" class="dynamic-entry">
+          <select name="awayAssisterId{{i}}" [(ngModel)]="assister.playerId" required>
+            <option value="">Selecteer speler...</option>
+            <option *ngFor="let player of awayPlayers" [value]="player._id">
+              {{ player.firstName }} {{ player.lastName }}
+            </option>
+          </select>
+          <input name="awayAssisterCount{{i}}" type="number" [(ngModel)]="assister.assists" min="1" 
+                 required placeholder="Aantal assists">
+          <button type="button" (click)="removeAwayAssister(i)">Verwijder</button>
+        </div>
+        <button type="button" (click)="addAwayAssister()">Voeg Away Assister toe</button>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+  <button type="submit" [disabled]="loading || !matchForm.valid">Update Match</button>
+</form>
+
+<div *ngIf="loading" class="loader">Matchgegevens laden...</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

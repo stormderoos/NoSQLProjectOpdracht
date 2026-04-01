@@ -1,0 +1,83 @@
+<div class="club-create-container">
+  <h2>Create New Club</h2>
+  <form [formGroup]="clubForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Club Name</label>
+      <input
+        id="name"
+        formControlName="name"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="clubForm.get('name')?.invalid && clubForm.get('name')?.touched"
+      />
+      <div *ngIf="clubForm.get('name')?.invalid && clubForm.get('name')?.touched" class="invalid-feedback">
+        Name is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input
+        id="location"
+        formControlName="location"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="clubForm.get('location')?.invalid && clubForm.get('location')?.touched"
+      />
+      <div *ngIf="clubForm.get('location')?.invalid && clubForm.get('location')?.touched" class="invalid-feedback">
+        Location is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="logoUrl">Logo URL</label>
+      <input
+        id="logoUrl"
+        formControlName="logoUrl"
+        type="text"
+        class="form-control"
+        placeholder="Enter logo URL"
+        [class.is-invalid]="clubForm.get('logoUrl')?.invalid && clubForm.get('logoUrl')?.touched"
+      />
+      <div *ngIf="clubForm.get('logoUrl')?.invalid && clubForm.get('logoUrl')?.touched" class="invalid-feedback">
+        Logo URL is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="playerSelect">Add Player</label>
+      <select
+        id="playerSelect"
+        class="form-control"
+        formControlName="selectedPlayerId"
+      >
+        <option value="" disabled>Select a player</option>
+        <option *ngFor="let player of availablePlayers" [value]="player._id">
+          {{ player.firstName }} {{ player.lastName }}
+        </option>
+      </select>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="addPlayerToClub()">
+      Add Player to Club
+    </button>
+
+    <div *ngIf="addedPlayersDetails.length > 0" class="added-players mt-3">
+      <h4>Added Players</h4>
+      <ul>
+        <li *ngFor="let player of addedPlayersDetails">
+          {{ player.firstName }} {{ player.lastName }}
+          <button type="button" class="btn btn-danger btn-sm" (click)="removePlayerFromClub(player.id)">
+            Remove
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="clubForm.invalid || addedPlayersDetails.length === 0">
+      Create Club
+    </button>
+  </form>
+
+  <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+</div>

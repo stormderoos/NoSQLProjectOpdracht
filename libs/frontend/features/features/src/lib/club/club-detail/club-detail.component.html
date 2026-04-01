@@ -1,0 +1,71 @@
+<div class="club-detail-container">
+  <div *ngIf="loading" class="loader">Loading club details...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <div *ngIf="club" class="club-banner">
+    <img [src]="club.logoUrl" alt="{{ club.name }} logo" class="club-banner-logo" />
+    <div class="club-banner-info">
+      <h1>{{ club.name }}</h1>
+      <p><strong>Location:</strong> {{ club.location }}</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'team'" (click)="setTab('team')">Team</button>
+    <button [class.active]="activeTab === 'matches'" (click)="setTab('matches')">Matches</button>
+  </div>
+
+  <div *ngIf="activeTab === 'team'">
+    <button class="edit-btn" [routerLink]="['/clubedit', club?._id]" *ngIf="userRole === 'admin' || userRole === 'clubowner'">
+      Edit Club
+    </button>
+
+    <div *ngIf="players.length > 0">
+      <ng-container *ngFor="let group of positionGroups">
+        <div class="position-header">{{ group.label }}</div>
+        <div class="player-grid">
+          <ng-container *ngFor="let player of players">
+            <ng-container *ngIf="group.positions.includes(player.position)">
+              <div class="player-card">
+                <img [src]="player.profileImageUrl || '/assets/footballplayer.png'" alt="Player" />
+                <div class="player-info">
+                  <strong>{{ player.firstName }} {{ player.lastName }}</strong>
+                  <p>{{ player.position }}</p>
+                  <button (click)="goToPlayerDetails(player._id)">Details</button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+
+    <p *ngIf="players.length === 0" class="no-players">No players in this club.</p>
+  </div>
+
+  <div *ngIf="activeTab === 'matches'">
+    <h2 class="match-list-title">Matches</h2>
+    <div *ngIf="matches.length === 0" class="no-players">No matches yet.</div>
+
+    <div class="match-grid" *ngIf="matches.length > 0">
+      <div class="match-card" *ngFor="let match of matches">
+        <div class="match-date">
+          {{ match.date | date: 'EEE d MMM yyyy' | uppercase }}
+        </div>
+        <div class="match-body">
+          <div class="club club-left">
+            <img [src]="getClubLogoById(match.home_club_id)" />
+            <span>{{ getClubName(match.home_club_id) }}</span>
+          </div>
+          <div class="score">
+            {{ match.score_home ?? '-' }} - {{ match.score_away ?? '-' }}
+          </div>
+          <div class="club club-right">
+            <img [src]="getClubLogoById(match.away_club_id)" />
+            <span>{{ getClubName(match.away_club_id) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

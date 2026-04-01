@@ -1,0 +1,91 @@
+<main>
+    <section class="about">
+      <h2>About Me</h2>
+      <p><strong>Naam:</strong> Storm de Roos</p>
+      <p><strong>Studentnummer:</strong> 2203568</p>
+    </section>
+  
+    <section class="description">
+      <h2>Casus Beschrijving</h2>
+      <p>
+        Deze applicatie maakt het mogelijk om voetbalclubs, spelers en wedstrijden te beheren. 
+        Gebruikers kunnen inloggen, afhankelijk van hun rol (beheerder of fan), en verschillende acties uitvoeren zoals het aanmaken van clubs, koppelen van spelers, plannen en bewerken van wedstrijden, en het inzien van statistieken.
+        Alle data wordt opgeslagen en beheerd in MongoDB. De frontend is gebouwd met Angular, en de backend met NestJS.
+      </p>
+    </section>
+  
+    <section class="erd">
+      <h2>ERD - Datamodel</h2>
+      <img src="/assets/webfootball-erd.png" alt="ERD Voetbal" />
+      <p>
+        Het datamodel bevat de volgende entiteiten:
+      </p>
+      <ul>
+        <li><strong>User:</strong> Beheerders of fans, met gegevens zoals e-mail, wachtwoord, profielafbeelding en rol.</li>
+        <li><strong>Club:</strong> Heeft een naam, locatie, logo en wordt beheerd door een user. Bevat een lijst van spelers.</li>
+        <li><strong>Player:</strong> Behoort tot één club. Heeft naam, geboortedatum, positie, statistieken en afbeelding.</li>
+        <li><strong>Match:</strong> Verbindt twee clubs. Bevat datum, locatie, score, en embedded scorers en assisters.</li>
+        <li><strong>ScoreEntry & AssistEntry:</strong> Embedded documenten binnen een Match die goals en assists bijhouden per speler.</li>
+      </ul>
+    </section>
+  
+    <section class="requirements">
+        <h2>Functionele Requirements</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>User Story</th>
+              <th>Acceptatiecriteria</th>
+              <th>Prioriteit (MoSCoW)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Als beheerder wil ik clubs kunnen aanmaken en beheren, zodat ik teams kan organiseren voor de competitie.</td>
+              <td>Club bevat een unieke naam, locatie, logo en een lijst van gekoppelde spelers.</td>
+              <td>Must Have</td>
+            </tr>
+            <tr>
+              <td>Als beheerder wil ik spelers kunnen toevoegen en koppelen aan clubs, zodat het team compleet is.</td>
+              <td>Spelers kunnen alleen gekoppeld worden als ze geen bestaande club hebben.</td>
+              <td>Must Have</td>
+            </tr>
+            <tr>
+              <td>Als beheerder wil ik wedstrijden kunnen plannen en bewerken, zodat de speeldagen georganiseerd zijn.</td>
+              <td>Een wedstrijd bevat datum, locatie, clubs, score, doelpuntenmakers en assistgevers.</td>
+              <td>Must Have</td>
+            </tr>
+            <tr>
+              <td>Als gebruiker wil ik een overzicht van alle geplande en gespeelde wedstrijden kunnen bekijken.</td>
+              <td>Wedstrijden worden gesorteerd op datum, met zichtbare scores, clubs en locaties.</td>
+              <td>Must Have</td>
+            </tr>
+            <tr>
+              <td>Als gebruiker wil ik het profiel van een speler kunnen bekijken, zodat ik statistieken kan inzien.</td>
+              <td>Profiel toont naam, club, positie, goals, assists, leeftijd en profielfoto.</td>
+              <td>Should Have</td>
+            </tr>
+            <tr>
+              <td>Als beheerder wil ik spelersstatistieken kunnen bewerken na een gespeelde wedstrijd.</td>
+              <td>Scores en assists zijn bewerkbaar via het wedstrijdformulier.</td>
+              <td>Should Have</td>
+            </tr>
+            <tr>
+              <td>Als gebruiker wil ik clubs kunnen bekijken en hun teams kunnen inzien.</td>
+              <td>Elke club toont een overzicht van spelers en gespeelde wedstrijden.</td>
+              <td>Should Have</td>
+            </tr>
+            <tr>
+              <td>Als fan wil ik topspelers kunnen zien op de homepage, zodat ik op de hoogte ben van de beste prestaties.</td>
+              <td>Topscores worden automatisch gegenereerd op basis van goals en assists.</td>
+              <td>Could Have</td>
+            </tr>
+            <tr>
+              <td>Als gebruiker wil ik in kunnen loggen en registreren met een rol (clubbeheerder of user).</td>
+              <td>Gebruikers krijgen rolgebaseerde toegang tot functionaliteiten.</td>
+              <td>Must Have</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+  </main>

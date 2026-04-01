@@ -1,0 +1,32 @@
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; 
+    background-color: #000;
+    background-image: url('/assets/pexels-markusspiske-104675.jpg');
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+    overflow-y: auto;
+}
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 20px 60px;
+}
+
+main {
+    flex: 1;
+    width: 100%; 
+    margin-top: 400px;
+    background-color: white;
+    padding: 20px;  
+}
+
+main.user-edit-active {
+    margin-top: 0;  
+    height: 100vh;  
+}

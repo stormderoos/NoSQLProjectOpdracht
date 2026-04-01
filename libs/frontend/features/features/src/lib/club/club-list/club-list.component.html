@@ -1,0 +1,29 @@
+<div class="club-list-container">
+  <h1>Clubs</h1>
+
+  <div class="actions" *ngIf="userRole === 'clubowner'">
+    <button routerLink="/clubcreate">+ Add Club</button>
+  </div>
+
+  <div *ngIf="loading" class="loader">Loading clubs...</div>
+
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && clubs.length === 0" class="no-clubs-message">
+    No clubs found. Add a new club to get started!
+  </div>
+
+  <div class="club-grid">
+    <div
+      class="club-card"
+      *ngFor="let club of clubs"
+      [routerLink]="['/clubs', club._id]"
+    >
+      <img [src]="club.logoUrl" alt="{{ club.name }} logo" class="club-logo" />
+      <div class="club-info">
+        <h3>{{ club.name.toUpperCase() }}</h3>
+        <p>{{ club.location.toUpperCase() }}</p>
+      </div>
+    </div>
+  </div>
+</div>

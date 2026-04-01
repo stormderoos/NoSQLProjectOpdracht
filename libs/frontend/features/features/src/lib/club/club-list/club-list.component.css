@@ -1,0 +1,116 @@
+html, body {
+  background-color: #0f1f17;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.club-list-container {
+  padding: 40px 80px;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #3fd887;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.actions {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actions button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3fd887;
+  color: #0f1f17;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.actions button:hover {
+  background-color: #30b574;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background-color: #2a1b1b;
+  border: 1px solid #bb4141;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loader {
+  font-style: italic;
+  color: #3fd887;
+  text-align: center;
+}
+
+.no-clubs-message {
+  text-align: center;
+  color: #bbb;
+  font-style: italic;
+  margin-top: 40px;
+}
+
+.club-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 40px;
+  justify-items: center;
+  margin-top: 30px;
+}
+
+.club-card {
+  width: 200px;
+  height: 240px;
+  background-color: #1b2c24;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: 20px 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.club-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* Clublogo */
+.club-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+/* Clubinfo */
+.club-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.club-info p {
+  font-size: 13px;
+  color: #aaaaaa;
+  margin: 6px 0 0;
+  text-transform: uppercase;
+}

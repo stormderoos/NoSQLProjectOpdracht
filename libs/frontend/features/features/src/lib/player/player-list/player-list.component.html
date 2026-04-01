@@ -1,0 +1,44 @@
+<div *ngIf="loading" class="loading-indicator">
+  Loading players...
+</div>
+
+<div class="actions" *ngIf="userRole === 'admin' || userRole === 'Clubbeheerder'">
+  <button routerLink="/playercreate">+ Add Player</button>
+</div>
+
+<div class="search-bar">
+  <input type="text" [(ngModel)]="searchTerm" placeholder="Search by player name" />
+  <button (click)="searchTerm = ''">Reset</button>
+</div>
+
+<div class="player-table-wrapper" *ngIf="filteredPlayers.length > 0">
+  <div class="player-table-header">
+    <span>Name</span>
+    <span>Club</span>
+    <span>Position</span>
+    <span>Goals</span>
+    <span>Assists</span>
+  </div>
+
+  <div
+    class="player-row"
+    *ngFor="let player of filteredPlayers"
+    (click)="goToPlayerDetails(player._id)"
+  >
+    <div class="player-info">
+      <img [src]="player.profileImageUrl || defaultImage" alt="Player Photo" />
+      <div>
+        <strong>{{ player.firstName }} {{ player.lastName }}</strong><br />
+        <small>{{ player.position }}</small>
+      </div>
+    </div>
+    <span>{{ getClubNameById(player.clubId || '') }}</span>
+    <span>{{ player.position }}</span>
+    <span>{{ player.goals || 0 }}</span>
+    <span>{{ player.assists || 0 }}</span>
+  </div>
+</div>
+
+<div *ngIf="!loading && filteredPlayers.length === 0" class="no-players-message">
+  No players found.
+</div>

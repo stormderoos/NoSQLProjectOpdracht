@@ -1,0 +1,57 @@
+<div class="home-container">
+  <h1 class="page-title"> BIJ <span>WEB FOOTBALL</span></h1>
+  <p class="intro">Ontdek clubs, spelers en wedstrijden in één platform</p>
+
+  <div class="hero-buttons">
+    <button routerLink="/matches">Bekijk wedstrijden</button>
+    <button routerLink="/clubs">Ontdek teams</button>
+  </div>
+
+  <section class="section">
+    <h2>UITGELICHTE WEDSTRIJDEN</h2>
+    <div class="card-row">
+      <a [routerLink]="'/matches'" class="match-card" *ngFor="let match of matches">
+        <div class="match-teams">
+          <div class="team">
+            <img [src]="getClubLogoById(match.home_club_id)" alt="Home team logo" />
+            <span>{{ getClubNameById(match.home_club_id) }}</span>
+          </div>
+          <span class="vs">vs</span>
+          <div class="team">
+            <img [src]="getClubLogoById(match.away_club_id)" alt="Away team logo" />
+            <span>{{ getClubNameById(match.away_club_id) }}</span>
+          </div>
+        </div>
+        <div class="match-info">
+          <p>{{ match.date | date:'dd MMM, HH:mm' }}</p>
+          <p>{{ getClubLocationById(match.home_club_id) }}</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>TOPSPELERS</h2>
+    <div class="card-row">
+      <a [routerLink]="['/players', player._id]" class="player-card" *ngFor="let player of topPlayers">
+        <div class="player-image-wrapper">
+          <img [src]="player.profileImageUrl || defaultImage" alt="Player" />
+        </div>
+        <div class="player-info">
+          <h3>{{ player.firstName }} {{ player.lastName }}</h3>
+          <p class="position">{{ player.position }}</p>
+          <div class="stats-row">
+            <div class="stat">
+              <strong>{{ player.goals ?? 0 }}</strong>
+              <span>Goals</span>
+            </div>
+            <div class="stat">
+              <strong>{{ player.assists ?? 0 }}</strong>
+              <span>Assists</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+</div>

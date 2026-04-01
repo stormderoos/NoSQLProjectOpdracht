@@ -1,0 +1,44 @@
+<div *ngIf="loading" class="loader">Loading player data...</div>
+<div *ngIf="error" class="error-message">{{ error }}</div>
+
+<div *ngIf="player && !loading" class="profile-card">
+  <div class="profile-header">
+    <img class="background-image" [src]="player.profileImageUrl || '/assets/footballplayer.png'" alt="Photo of {{ player.firstName }} {{ player.lastName }}" />
+    <div class="overlay"></div>
+
+    <div class="profile-content">
+      <div class="back-label">#{{ player.position }}</div>
+
+      <div class="name-section">
+        <h2>{{ player.firstName }}</h2>
+        <h1>{{ player.lastName }}</h1>
+      </div>
+
+      <div class="club-name">
+        <img *ngIf="clubLogoUrl" [src]="clubLogoUrl" class="club-logo" alt="Club logo" />
+        {{ clubName }}
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-value">{{ getAge(player.birthdate) }}</div>
+          <div class="stat-label">Age</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value">{{ player.goals ?? 0 }}</div>
+          <div class="stat-label">Goals</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value">{{ player.assists ?? 0 }}</div>
+          <div class="stat-label">Assists</div>
+        </div>
+      </div>
+
+      <div class="edit-button-container" *ngIf="userRole === 'admin' || userRole === 'clubbeheerder'">
+        <button class="edit-button" [routerLink]="['/playeredit', player._id]">
+          Edit Player
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

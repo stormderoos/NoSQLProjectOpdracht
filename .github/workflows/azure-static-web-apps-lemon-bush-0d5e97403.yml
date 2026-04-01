@@ -1,0 +1,104 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy frontend and backend app to Azure
+
+on:
+    push:
+        branches:
+            - release
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        name: Build and zip apps from /dist
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Node.js version
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18.x'
+
+            - name: npm install, build, and test
+              run: |
+                  npm install --legacy-peer-deps
+                  npm run build --if-present
+
+            - name: Zip artifacts for deployment
+              run: |
+                  echo ${GITHUB_WORKSPACE}
+                  cd ${GITHUB_WORKSPACE}/dist/apps/data-api/ && zip ${GITHUB_WORKSPACE}/data-api-release.zip ./* -r
+                  cd ${GITHUB_WORKSPACE}/dist/apps/my-app/ && zip ${GITHUB_WORKSPACE}/my-app-release.zip ./* -r
+
+            - name: Upload my-app artifact for deployment job
+              uses: actions/upload-artifact@v4
+              with:
+                  name: my-app
+                  path: my-app-release.zip
+
+            - name: Upload data-api artifact for deployment job
+              uses: actions/upload-artifact@v4
+              with:
+                  name: data-api
+                  path: data-api-release.zip
+
+    deploy-my-app:
+        runs-on: ubuntu-latest
+        name: Deploy Angular Frontend
+        needs: build
+        environment:
+            name: 'Production'
+
+        steps:
+            - name: Download artifact from build job
+              uses: actions/download-artifact@v4
+              with:
+                  name: my-app
+
+            - name: Unzip artifact for deployment
+              run: unzip my-app-release.zip
+
+            - name: Deploy to static azure web app
+              id: builddeploy
+              uses: Azure/static-web-apps-deploy@v1
+              with:
+                  azure_static_web_apps_api_token: ${{ secrets.ANGULAR_PUBLISHTOKEN }}
+                  repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+                  action: 'upload'
+                  app_location: '/' # App source code path
+                  api_location: '' # Api source code path - optional
+                  output_location: 'dist/apps/my-app' # Built app content directory - optional
+                  github_id_token: ${{ steps.idtoken.outputs.result }}
+
+    deploy-data-api:
+      runs-on: ubuntu-latest
+      name: Deploy NestJs data-api backend
+      needs: build
+      environment:
+        name: 'Production'
+
+      steps:
+        - name: Download artifact from build job
+          uses: actions/download-artifact@v4
+          with:
+            name: data-api
+
+        - name: Unzip artifact for deployment
+          run: unzip data-api-release.zip
+
+        - name: Install production dependencies
+          run: npm install --legacy-peer-deps
+
+        - name: Retry deploy to Azure Web App (max 3x bij 409 Conflict)
+          run: |
+            for i in {1..3}; do
+              echo " Attempt $i to deploy backend to Azure Web App..."
+              npx azure-webapps-deploy \
+                --app-name nx-worskhop-nestjs \
+                --slot-name Production \
+                --publish-profile '${{ secrets.DATA_API_PUBLISHPROFILE }}' \
+                --package . \
+                && break || (echo "⚠️ Conflict, retrying in 30s..." && sleep 30)
+            done
+          shell: bash

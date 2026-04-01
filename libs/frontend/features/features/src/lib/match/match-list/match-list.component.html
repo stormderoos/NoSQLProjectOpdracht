@@ -1,0 +1,44 @@
+<div *ngIf="loading" class="loading-spinner">
+  <p>Loading matches...</p>
+</div>
+
+<div *ngIf="error" class="error-message">
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && !error">
+  <h2 class="match-list-title">Matches</h2>
+
+  <div class="add-match-button-container" *ngIf="userRole === 'admin' || userRole === 'clubbeheerder'">
+    <button routerLink="/matchcreate"> + Add Match</button>
+  </div>
+
+  <div class="match-grid">
+    <div class="match-card" *ngFor="let match of matches">
+      <div class="match-date">
+        {{ match.date | date:'EEE d MMM yyyy' | uppercase }}
+      </div>
+
+      <div class="match-body">
+        <div class="club">
+          <img [src]="getClubLogoById(match.home_club_id)" alt="Home Logo" />
+          <span>{{ getClubNameById(match.home_club_id) }}</span>
+        </div>
+
+        <div class="score">
+          {{ match.score_home }} - {{ match.score_away }}
+        </div>
+
+        <div class="club">
+          <img [src]="getClubLogoById(match.away_club_id)" alt="Away Logo" />
+          <span>{{ getClubNameById(match.away_club_id) }}</span>
+        </div>
+      </div>
+
+      <div class="match-actions">
+        <button *ngIf="userRole === 'admin' || userRole === 'clubbeheerder'" [routerLink]="['/matchedit', match._id]">Edit</button>
+        <button *ngIf="userRole === 'admin'" (click)="deleteMatch(match._id.toString())">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

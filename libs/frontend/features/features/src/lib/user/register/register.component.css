@@ -1,0 +1,92 @@
+.register-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background: linear-gradient(145deg, #f0f0f0, #ffffff);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 -5px 10px rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+  }
+  
+  .register-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 26px;
+    font-weight: bold;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+  
+  .register-container label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .register-container input,
+  .register-container select {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .register-container input:focus,
+  .register-container select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  
+  .register-container button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .register-container button:hover {
+    background-color: #0056b3;
+    transform: scale(1.03);
+  }
+  
+  .register-container .error-message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #d9534f;
+  }
+  
+  @media (max-width: 768px) {
+    .register-container {
+      padding: 20px;
+    }
+  
+    .register-container h2 {
+      font-size: 22px;
+    }
+  
+    .register-container input,
+    .register-container select {
+      font-size: 13px;
+      padding: 10px;
+    }
+  
+    .register-container button {
+      font-size: 14px;
+    }
+  }
