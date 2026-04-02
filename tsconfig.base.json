@@ -25,9 +25,6 @@
             "@avans-nx-workshop/backend/neo4j": [
                 "libs/backend/neo4j/src/index.ts"
             ],
-            "@avans-nx-workshop/backend/shared-auth": [
-                "backend/shared-auth/src/index.ts"
-            ],
             "@avans-nx-workshop/backend/user": [
                 "libs/backend/user/src/index.ts"
             ],
@@ -54,9 +51,6 @@
             ],
             "@avans-nx-workshop/share-a-meal/user": [
                 "libs/share-a-meal/user/src/index.ts"
-            ],
-            "@avans-nx-workshop/shared-auth": [
-                "libs/backend/shared-auth/src/index.ts"
             ],
             "@avans-nx-workshop/shared/api": ["libs/shared/api/src/index.ts"],
             "@avans-nx-workshop/shared/util-env": [
