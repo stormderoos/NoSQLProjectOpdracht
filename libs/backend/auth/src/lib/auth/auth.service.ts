@@ -18,7 +18,7 @@ export class AuthService {
 
   constructor(
     @InjectModel('User') private userModel: Model<any>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async login(credentials: IUserCredentials): Promise<IUserIdentity> {
@@ -57,7 +57,12 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
 
-    const newUser = await this.userModel.create(dto);
+    // Wachtwoord hashen voor opslaan
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const newUser = await this.userModel.create({
+      ...dto,
+      password: hashedPassword,
+    });
 
     const payload = {
       user_id: newUser._id,

@@ -12,10 +12,11 @@ import { AuthService } from './auth/auth.service';
         JwtModule.register({
             secret: process.env['JWT_SECRET'] || 'secretstring',
             signOptions: { expiresIn: '12 days' }
-        })
+        }),
+
     ],
     controllers: [AuthController],
     providers: [AuthService],
-    exports: [AuthService]
+    exports: [AuthService, JwtModule]
 })
 export class AuthModule {}
