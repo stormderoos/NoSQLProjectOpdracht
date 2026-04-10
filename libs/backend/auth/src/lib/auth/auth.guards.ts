@@ -1,40 +1,44 @@
 import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    Logger,
-    UnauthorizedException
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    private readonly logger = new Logger(AuthGuard.name);
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector  // ← toevoegen
+  ) {}
 
-    constructor(private jwtService: JwtService) {}
+  canActivate(context: ExecutionContext): boolean {
+    // Check of route @Public() heeft
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;  // ← publieke routes overslaan
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
-        if (!token) {
-            this.logger.log('No token found');
-            throw new UnauthorizedException();
-        }
-        try {
-            const payload = await this.jwtService.verifyAsync(token, {
-                secret: process.env['JWT_SECRET'] || 'secretstring'
-            });
-            this.logger.log('payload', payload);
-            request['user'] = payload;
-        } catch {
-            throw new UnauthorizedException();
-        }
-        return true;
+    const request = context.switchToHttp().getRequest();
+    const authHeader = request.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('No token provided');
     }
 
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
+    const token = authHeader.split(' ')[1];
+
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env['JWT_SECRET'] || 'secretstring',
+      });
+      request.user = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid token');
     }
+  }
 }

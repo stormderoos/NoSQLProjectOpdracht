@@ -1,205 +1,112 @@
-import { Test } from '@nestjs/testing';
-
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { disconnect, Model } from 'mongoose';
-import { MongoClient } from 'mongodb';
-
+import { Test, TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
 import { UserService } from './user.service';
-import { User, UserDocument, UserSchema } from './user.schema';
-import { Meetup, MeetupDocument, MeetupSchema } from '../meetup/meetup.schema';
+import { User } from './user.schema';
+
+const mockExec = jest.fn();
+const mockLean = jest.fn(() => ({ exec: mockExec }));
+const mockSelect = jest.fn(() => ({ lean: mockLean }));
+
+const mockUserModel = {
+  find: jest.fn(() => ({ lean: mockLean })),
+  findOne: jest.fn(() => ({ lean: mockLean, select: mockSelect })),
+  findById: jest.fn(() => ({ lean: mockLean, exec: mockExec })),
+  create: jest.fn(),
+} as any;
 
 describe('UserService', () => {
   let service: UserService;
-  let mongod: MongoMemoryServer;
-  let mongoc: MongoClient;
-  let userModel: Model<UserDocument>;
-  let meetupModel: Model<MeetupDocument>;
 
-  const testMeetups = [{
-    topic: 'math',
-    datetime: new Date(),
-    review: {text: 'Great help! (1)', rating: 4},
-    accepted: true,
-  }, {
-    topic: 'math',
-    datetime: new Date(),
-    review: {text: 'Great help! (2)', rating: 4},
-    accepted: true,
-  }, {
-    topic: 'math',
-    datetime: new Date(),
-    review: {text: 'Great help! (3)', rating: 5},
-    accepted: true,
-  }, {
-    topic: 'math',
-    datetime: new Date(),
-    accepted: true,
-  }]
-
-  const testUsers = [{
-    id: 'jan123',
-    name: 'jan',
-    emailAddress: 'mail@address.com',
-    tutorTopics: [],
-    pupilTopics: [],
-    meetups: [],
-  }, {
-    id: 'dion123',
-    name: 'dion',
-    emailAddress: 'mail@address.com',
-    tutorTopics: [],
-    pupilTopics: [],
-    meetups: [],
-  }, {
-    id: 'davide123',
-    name: 'davide',
-    emailAddress: 'mail@address.com',
-    tutorTopics: [],
-    pupilTopics: [],
-    meetups: [],
-  }];
-  
-  beforeAll(async () => {
-    let uri: string;
-    
-    const app = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRootAsync({
-          useFactory: async () => {
-            mongod = await MongoMemoryServer.create();
-            uri = mongod.getUri();
-            return {uri};
-          },
-        }),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-        MongooseModule.forFeature([{ name: Meetup.name, schema: MeetupSchema }]),
-      ],
-      providers: [UserService],
-    }).compile();
-
-    service = app.get<UserService>(UserService);
-    userModel = app.get<Model<UserDocument>>(getModelToken(User.name));
-    meetupModel = app.get<Model<MeetupDocument>>(getModelToken(Meetup.name));
-
-    mongoc = new MongoClient(uri);
-    await mongoc.connect();
-  });
+  const exampleUser = {
+    _id: 'user123',
+    id: 'user123',
+    username: 'testuser',
+    email: 'test@test.com',
+    role: 'User',
+    profileImgUrl: 'https://example.com/avatar.png',
+    gender: 'Unknown',
+  };
 
   beforeEach(async () => {
-    await mongoc.db('test').collection('users').deleteMany({});
-    await mongoc.db('test').collection('meetups').deleteMany({});
+    jest.clearAllMocks();
 
-    const user1 = new userModel(testUsers[0]);
-    const user2 = new userModel(testUsers[1]);
-    const user3 = new userModel(testUsers[2]);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        { provide: getModelToken(User.name), useValue: mockUserModel },
+      ],
+    }).compile();
 
-    const meetup1 = new meetupModel({
-      ...testMeetups[0], 
-      tutorRef: user1._id, 
-      pupilRef: user2._id,
-      tutor: {id: user1.id, name: user1.name},
-      pupil: {id: user2.id, name: user2.name},
-    });
-    const meetup2 = new meetupModel({
-      ...testMeetups[1], 
-      tutorRef: user3._id, 
-      pupilRef: user1._id,
-      tutor: {id: user3.id, name: user3.name},
-      pupil: {id: user1.id, name: user1.name},
-    });
-    const meetup3 = new meetupModel({
-      ...testMeetups[2], 
-      tutorRef: user1._id, 
-      pupilRef: user2._id,
-      tutor: {id: user1.id, name: user1.name},
-      pupil: {id: user2.id, name: user2.name},
-    });
-    const meetup4 = new meetupModel({
-      ...testMeetups[3], 
-      tutorRef: user1._id, 
-      pupilRef: user2._id,
-      tutor: {id: user1.id, name: user3.name},
-      pupil: {id: user2.id, name: user1.name},
-    });
-
-    user1.meetups.push(meetup1);
-    user1.meetups.push(meetup2);
-    user1.meetups.push(meetup3);
-    user1.meetups.push(meetup4);
-    user2.meetups.push(meetup1);
-    user2.meetups.push(meetup3);
-    user2.meetups.push(meetup4);
-    user3.meetups.push(meetup2);
-
-    await Promise.all([user1.save(), user2.save(), user3.save(), meetup1.save(), meetup2.save(), meetup3.save(), meetup4.save()]);
+    service = module.get<UserService>(UserService);
   });
 
-  afterAll(async () => {
-    await mongoc.close();
-    await disconnect();
-    await mongod.stop();
-  });
+  describe('findAll', () => {
+    it('should return all users mapped correctly', async () => {
+      mockExec.mockResolvedValueOnce([exampleUser]);
 
-  describe('getAll', () => {
-    it('should retrieve all users', async () => {
-      const results = await service.getAll();
-  
-      expect(results).toHaveLength(3);
-      expect(results.map(r => r.name)).toContain('jan');
-      expect(results.map(r => r.name)).toContain('dion');
-      expect(results.map(r => r.name)).toContain('davide');
-    });
-    
-    it('should not give meetups or reviews', async () => {
-      const results = await service.getAll();
+      const result = await service.findAll();
 
-      expect(results[0]).not.toHaveProperty('meetups');
-      expect(results[0]).not.toHaveProperty('reviews');
+      expect(result).toHaveLength(1);
+      expect(result[0]).toHaveProperty('id', 'user123');
+      expect(result[0]).toHaveProperty('username', 'testuser');
     });
 
-    it('gives the average rating, id, name, topics', async () => {
-      const results = await service.getAll();
+    it('should return an empty array when no users exist', async () => {
+      mockExec.mockResolvedValueOnce([]);
 
-      expect(results[0]).toHaveProperty('id');
-      expect(results[0]).toHaveProperty('name');
-      expect(results[0]).toHaveProperty('rating');
-      expect(results[0]).toHaveProperty('tutorTopics');
-      expect(results[0]).toHaveProperty('pupilTopics');
-      expect(results.filter(u => u.name == 'jan')[0].rating).toBe(4.5);
+      const result = await service.findAll();
+
+      expect(result).toEqual([]);
     });
   });
 
-  describe('getOne', () => {
-    it('should retrieve a specific user', async () => {
-      const result = await service.getOne('jan123');
+  describe('findOne', () => {
+    it('should return a user when found', async () => {
+      mockExec.mockResolvedValueOnce(exampleUser);
 
-      expect(result).toHaveProperty('name', 'jan');
-    });
-    
-    it('returns null when user is not found', async () => {
-      const result = await service.getOne('niemand');
-      
-      expect(result).toBeUndefined();
-    });
-    
-    it('should not give meetups', async () => {
-      const result = await service.getOne('jan123');
-      
-      expect(result).not.toHaveProperty('meetups');
-    });
-    
-    it('gives the average rating', async () => {
-      const result = await service.getOne('jan123');
-      
-      expect(result).toHaveProperty('rating', 4.5);
-    });
-    
-    it('gives all reviews of this user', async () => {
-      const result = await service.getOne('jan123');
+      const result = await service.findOne('user123');
 
-      expect(result).toHaveProperty('reviews');
-      expect(result.reviews).toHaveLength(2);
+      expect(result).toHaveProperty('username', 'testuser');
+      expect(mockUserModel.findOne).toHaveBeenCalledWith({ _id: 'user123' });
+    });
+
+    it('should return null when user does not exist', async () => {
+      mockExec.mockResolvedValueOnce(null);
+
+      const result = await service.findOne('nonexistent');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('findOneByEmail', () => {
+    it('should return a user when found by email', async () => {
+      mockExec.mockResolvedValueOnce(exampleUser);
+
+      const result = await service.findOneByEmail('test@test.com');
+
+      expect(result).toHaveProperty('email', 'test@test.com');
+    });
+
+    it('should return null when email is not found', async () => {
+      mockExec.mockResolvedValueOnce(null);
+
+      const result = await service.findOneByEmail('nobody@test.com');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('create', () => {
+    it('should create and return a new user', async () => {
+      const savedUser = { ...exampleUser, toObject: () => exampleUser };
+      mockUserModel.create.mockResolvedValueOnce(savedUser);
+
+      const dto = { username: 'testuser', email: 'test@test.com', password: 'secret' };
+      const result = await service.create(dto as any);
+
+      expect(mockUserModel.create).toHaveBeenCalledWith(dto);
+      expect(result).toHaveProperty('username', 'testuser');
     });
   });
 });

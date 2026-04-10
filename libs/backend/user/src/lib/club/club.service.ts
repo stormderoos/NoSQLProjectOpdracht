@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Club as ClubModel, ClubDocument } from './club.schema';
@@ -28,9 +28,10 @@ export class ClubService {
     this.logger.log(`Finding club with id ${_id}`);
     
     const club = await this.clubModel.findOne({ _id }).lean().exec();
-    
+
     if (!club) {
       this.logger.debug(`Club with id ${_id} not found`);
+      throw new NotFoundException(`Club with id ${_id} not found`);
     }
     return club;
   }
@@ -101,5 +102,14 @@ export class ClubService {
     return this.matchModel.find({
       $or: [{ home_club_id: clubId }, { away_club_id: clubId }],
     }).lean().exec();
+  }
+
+  // Haal meerdere clubs op via een lijst van IDs (gebruikt door Neo4j integratie)
+  async findManyByIds(ids: string[]): Promise<IFindClub[]> {
+    if (!ids.length) return [];
+    return this.clubModel
+      .find({ _id: { $in: ids } })
+      .lean()
+      .exec();
   }
 }

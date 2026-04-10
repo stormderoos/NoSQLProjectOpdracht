@@ -1,79 +1,109 @@
 import { Test, TestingModule } from '@nestjs/testing';
-
+import { NotFoundException } from '@nestjs/common';
 import { UserController } from './user.controller';
-
 import { UserService } from './user.service';
+import { UserExistGuard } from './user-exists.guard';
+import { IUser } from '@avans-nx-workshop/shared/api';
 
-describe('TopicController', () => {
-  let app: TestingModule;
-  let userController: UserController;
-  let userService: UserService;
+describe('UserController', () => {
+  let controller: UserController;
+  let service: UserService;
+
+  const exampleUser: Partial<IUser> = {
+    id: 'user123',
+    username: 'testuser',
+    email: 'test@test.com',
+    role: 'User' as any,
+  };
 
   beforeAll(async () => {
-    app = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [{ // mock the service, to avoid providing its dependencies
-        provide: UserService,
-        useValue: {
-          getAll: jest.fn(),
-          getOne: jest.fn(),
+      providers: [
+        {
+          provide: UserService,
+          useValue: {
+            findAll: jest.fn(),
+            findOne: jest.fn(),
+            create: jest.fn(),
+            updateUser: jest.fn(),
+          },
         },
-      }],
-    }).compile();
+      ],
+    })
+      .overrideGuard(UserExistGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
-   userController = app.get<UserController>(UserController);
-   userService = app.get<UserService>(UserService);
+    controller = module.get<UserController>(UserController);
+    service = module.get<UserService>(UserService);
   });
 
-  describe('getAll', () => {
-    it('should call getAll on the service', async () => {
-      const exampleUser = {
-        id: 'id123',
-        name: 'alexander',
-        isActive: true,
-        emailAddress: 'alexander@avans.nl',
-        roles: [],
-        meetups: [],
-        tutorTopics: ["nosql"],
-        pupilTopics: ["flying"],
-        rating: 4,
-      };
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-      const getAll = jest.spyOn(userService, 'getAll')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .mockImplementation(async () => [exampleUser]);
+  describe('findAll', () => {
+    it('should call service.findAll and return all users', async () => {
+      jest.spyOn(service, 'findAll').mockResolvedValue([exampleUser as IUser]);
 
-      const results = await userController.getAll();
+      const result = await controller.findAll();
 
-      expect(getAll).toBeCalledTimes(1);
-      expect(results).toHaveLength(1);
-      expect(results[0]).toHaveProperty('id', exampleUser.id);
+      expect(service.findAll).toHaveBeenCalledTimes(1);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toHaveProperty('username', 'testuser');
+    });
+
+    it('should return an empty array when no users exist', async () => {
+      jest.spyOn(service, 'findAll').mockResolvedValue([]);
+
+      const result = await controller.findAll();
+
+      expect(result).toEqual([]);
     });
   });
 
-  describe('getOne & getSelf', () => {
-    it('should call getOne on the service with id from parameter', async () => {
-      const exampleUser = {
-        id: 'id123',
-        name: 'alexander',
-        isActive: true,
-        emailAddress: 'alexander@avans.nl',
-        roles: [],
-        meetups: [],
-        tutorTopics: ["nosql"],
-        pupilTopics: ["flying"],
-        rating: 4,
-        reviews: [{id: 'r123', text: 'Great help', rating: 4, pupil: 'id4321', tutor: 'id123', datetime: new Date()}],
-      };
+  describe('findOne', () => {
+    it('should call service.findOne with the correct id', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleUser as IUser);
 
-      const getOne = jest.spyOn(userService, 'getOne')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .mockImplementation(async () => exampleUser);
+      const result = await controller.findOne('user123');
 
-      const result = await userController.getOne(exampleUser.id);
+      expect(service.findOne).toHaveBeenCalledWith('user123');
+      expect(result).toHaveProperty('id', 'user123');
+    });
 
-      expect(getOne).toBeCalledTimes(1);
-      expect(result).toHaveProperty('id', exampleUser.id);
+    it('should return null when user is not found', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+
+      const result = await controller.findOne('nonexistent');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('create', () => {
+    it('should call service.create with the user dto', async () => {
+      const dto = { username: 'newuser', email: 'new@test.com', password: 'secret' };
+      jest.spyOn(service, 'create').mockResolvedValue(exampleUser as IUser);
+
+      const result = await controller.create(dto as any);
+
+      expect(service.create).toHaveBeenCalledWith(dto);
+      expect(result).toHaveProperty('id', 'user123');
+    });
+  });
+
+  describe('update', () => {
+    it('should call service.updateUser with id and dto', async () => {
+      const dto = { username: 'updateduser' };
+      const updated = { ...exampleUser, ...dto };
+      jest.spyOn(service, 'updateUser').mockResolvedValue(updated as IUser);
+
+      const result = await controller.update('user123', dto as any);
+
+      expect(service.updateUser).toHaveBeenCalledWith('user123', dto);
+      expect(result).toHaveProperty('username', 'updateduser');
     });
   });
 });

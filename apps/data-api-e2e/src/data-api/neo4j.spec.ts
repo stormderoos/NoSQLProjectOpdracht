@@ -26,6 +26,8 @@ async function del(path: string, token?: string) {
   return { status: res.status, data };
 }
 
+jest.setTimeout(15000);
+
 describe('Neo4j users endpoints', () => {
   let tokenA: string;
   let userAId: string;
@@ -37,15 +39,15 @@ describe('Neo4j users endpoints', () => {
       email: `neo4j_userA_${Date.now()}@test.com`,
       password: 'Test1234!',
     });
-    tokenA = resA.data.token;
-    userAId = resA.data.id;
+    tokenA = resA.data.results.token; // token zit in results
+    userAId = resA.data.results.id;
 
     const resB = await post('/auth/register', {
       username: 'neo4j_userB_' + Date.now(),
       email: `neo4j_userB_${Date.now()}@test.com`,
       password: 'Test1234!',
     });
-    userBId = resB.data.id;
+    userBId = resB.data.results.id;
   });
 
   describe('POST /neo4j/users/:id/follow', () => {

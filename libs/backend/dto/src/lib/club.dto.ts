@@ -15,6 +15,7 @@ export class CreateClubDto {
   @IsArray()
   players?: string[]; 
 
+  @IsOptional()
   @IsString()
   createdBy?: string;
 

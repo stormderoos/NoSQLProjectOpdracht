@@ -47,7 +47,7 @@ describe('Clubs endpoints', () => {
       password: 'Test1234!',
     });
     const { data } = await post('/auth/login', { email, password: 'Test1234!' });
-    token = data.token;
+    token = data.results.token; // token zit in results
   });
 
   describe('GET /clubs', () => {

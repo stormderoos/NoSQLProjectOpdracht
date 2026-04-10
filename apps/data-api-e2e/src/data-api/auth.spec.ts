@@ -4,9 +4,7 @@ async function post(path: string, body: unknown, token?: string) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(`${BASE}${path}`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
+    method: 'POST', headers, body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => null);
   return { status: res.status, data };
@@ -31,8 +29,8 @@ describe('Auth endpoints', () => {
     it('should register a new user and return a token (happy flow)', async () => {
       const { status, data } = await post('/auth/register', testUser);
       expect(status).toBe(201);
-      expect(data).toHaveProperty('token');
-      expect(data.email).toBe(testUser.email);
+      expect(data.results).toHaveProperty('token'); // token zit in results
+      expect(data.results.email).toBe(testUser.email);
     });
 
     it('should return 409 when registering with an existing email (failure)', async () => {
@@ -53,7 +51,7 @@ describe('Auth endpoints', () => {
         password: testUser.password,
       });
       expect(status).toBe(201);
-      expect(data).toHaveProperty('token');
+      expect(data.results).toHaveProperty('token');
     });
 
     it('should return 401 with wrong password (failure)', async () => {

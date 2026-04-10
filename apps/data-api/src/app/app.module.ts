@@ -14,7 +14,10 @@ import { Neo4jModule } from 'nest-neo4j';
     MongooseModule.forRoot(environment.MONGO_DB_CONNECTION_STRING, {
       connectionFactory: (connection) => {
         connection.on('connected', () => {
-          Logger.verbose(`Mongoose connected`);
+          Logger.verbose('MongoDB connected!', 'MongooseModule');
+        });
+        connection.on('disconnected', () => {
+          Logger.verbose('MongoDB disconnected!', 'MongooseModule');
         });
         return connection;
       },
@@ -25,14 +28,14 @@ import { Neo4jModule } from 'nest-neo4j';
       port: 7687,
       username: 'neo4j',
       password: 'swWelkom01!',
-    }),    
+    }),
     UsersModule,
     Neo4jBackendModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AuthGuard, // ← globaal op alle routes
+      useClass: AuthGuard,
     },
   ],
 })
