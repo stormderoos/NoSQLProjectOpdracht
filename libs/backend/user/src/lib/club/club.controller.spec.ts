@@ -1,9 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ClubController } from './club.controller';
 import { ClubService } from './club.service';
 import { ClubExistGuard } from './club-exists.guard';
 import { IFindClub } from '@avans-nx-workshop/shared/api';
+
+const OWNER_ID = 'user-owner-id';
+const OTHER_ID = 'user-other-id';
+const ownerReq = { user: { user_id: OWNER_ID, role: 'user' } };
+const adminReq = { user: { user_id: OTHER_ID, role: 'admin' } };
+const strangerReq = { user: { user_id: OTHER_ID, role: 'user' } };
 
 describe('ClubController', () => {
   let controller: ClubController;
@@ -14,6 +20,7 @@ describe('ClubController', () => {
     location: 'Breda',
     logoUrl: 'https://example.com/logo.png',
     players: [],
+    createdBy: OWNER_ID,
   };
 
   beforeAll(async () => {
@@ -34,7 +41,6 @@ describe('ClubController', () => {
         },
       ],
     })
-      // Override the guard so we don't need to provide ClubModel
       .overrideGuard(ClubExistGuard)
       .useValue({ canActivate: () => true })
       .compile();
@@ -85,37 +91,79 @@ describe('ClubController', () => {
   });
 
   describe('create', () => {
-    it('should call service.create with the club dto', async () => {
-      const dto = { name: 'FC Breda', location: 'Breda' };
+    it('should set createdBy from JWT and call service.create', async () => {
+      const dto: any = { name: 'FC Breda', location: 'Breda' };
       jest.spyOn(service, 'create').mockResolvedValue(exampleClub as IFindClub);
 
-      const result = await controller.create(dto as any);
+      const result = await controller.create(dto, ownerReq as any);
 
+      expect(dto.createdBy).toBe(OWNER_ID);
       expect(service.create).toHaveBeenCalledWith(dto);
       expect(result).toHaveProperty('name', 'FC Breda');
     });
   });
 
   describe('update', () => {
-    it('should call service.update with id and dto', async () => {
+    it('should allow the owner to update their club', async () => {
       const dto = { name: 'FC Rotterdam', location: 'Rotterdam' };
       const updated = { ...exampleClub, ...dto };
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
       jest.spyOn(service, 'update').mockResolvedValue(updated as IFindClub);
 
-      const result = await controller.update('club123', dto as any);
+      const result = await controller.update('club123', dto as any, ownerReq as any);
 
       expect(service.update).toHaveBeenCalledWith('club123', dto);
       expect(result).toHaveProperty('name', 'FC Rotterdam');
     });
+
+    it('should allow an admin to update any club', async () => {
+      const dto = { name: 'FC Admin' };
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
+      jest.spyOn(service, 'update').mockResolvedValue({ ...exampleClub, ...dto } as IFindClub);
+
+      const result = await controller.update('club123', dto as any, adminReq as any);
+
+      expect(result).toHaveProperty('name', 'FC Admin');
+    });
+
+    it('should throw ForbiddenException when a non-owner tries to update', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
+
+      await expect(
+        controller.update('club123', { name: 'Hack' } as any, strangerReq as any)
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(service.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteClub', () => {
-    it('should call service.delete with the correct id', async () => {
+    it('should allow the owner to delete their club', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
       jest.spyOn(service, 'delete').mockResolvedValue(exampleClub as IFindClub);
 
-      await controller.deleteClub('club123');
+      await controller.deleteClub('club123', ownerReq as any);
 
       expect(service.delete).toHaveBeenCalledWith('club123');
+    });
+
+    it('should allow an admin to delete any club', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
+      jest.spyOn(service, 'delete').mockResolvedValue(exampleClub as IFindClub);
+
+      await controller.deleteClub('club123', adminReq as any);
+
+      expect(service.delete).toHaveBeenCalledWith('club123');
+    });
+
+    it('should throw ForbiddenException when a non-owner tries to delete', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(exampleClub as IFindClub);
+
+      await expect(
+        controller.deleteClub('club123', strangerReq as any)
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(service.delete).not.toHaveBeenCalled();
     });
   });
 });

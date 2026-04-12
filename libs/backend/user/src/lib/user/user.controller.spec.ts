@@ -1,19 +1,31 @@
+// bcrypt uses native bindings that may not match the test runner architecture
+jest.mock('bcrypt', () => ({
+  genSalt: jest.fn().mockResolvedValue('salt'),
+  hash: jest.fn().mockResolvedValue('hashed'),
+  compare: jest.fn().mockResolvedValue(true),
+}));
+
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserExistGuard } from './user-exists.guard';
 import { IUser } from '@avans-nx-workshop/shared/api';
+
+const USER_ID = 'user123';
+const selfReq = { user: { user_id: USER_ID, role: 'user' } };
+const adminReq = { user: { user_id: 'admin-id', role: 'admin' } };
+const strangerReq = { user: { user_id: 'stranger-id', role: 'user' } };
 
 describe('UserController', () => {
   let controller: UserController;
   let service: UserService;
 
   const exampleUser: Partial<IUser> = {
-    id: 'user123',
+    id: USER_ID,
     username: 'testuser',
     email: 'test@test.com',
-    role: 'User' as any,
+    role: 'user' as any,
   };
 
   beforeAll(async () => {
@@ -27,6 +39,7 @@ describe('UserController', () => {
             findOne: jest.fn(),
             create: jest.fn(),
             updateUser: jest.fn(),
+            deleteUser: jest.fn(),
           },
         },
       ],
@@ -67,10 +80,10 @@ describe('UserController', () => {
     it('should call service.findOne with the correct id', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(exampleUser as IUser);
 
-      const result = await controller.findOne('user123');
+      const result = await controller.findOne(USER_ID);
 
-      expect(service.findOne).toHaveBeenCalledWith('user123');
-      expect(result).toHaveProperty('id', 'user123');
+      expect(service.findOne).toHaveBeenCalledWith(USER_ID);
+      expect(result).toHaveProperty('id', USER_ID);
     });
 
     it('should return null when user is not found', async () => {
@@ -90,20 +103,63 @@ describe('UserController', () => {
       const result = await controller.create(dto as any);
 
       expect(service.create).toHaveBeenCalledWith(dto);
-      expect(result).toHaveProperty('id', 'user123');
+      expect(result).toHaveProperty('id', USER_ID);
     });
   });
 
   describe('update', () => {
-    it('should call service.updateUser with id and dto', async () => {
+    it('should allow a user to update their own profile', async () => {
       const dto = { username: 'updateduser' };
       const updated = { ...exampleUser, ...dto };
       jest.spyOn(service, 'updateUser').mockResolvedValue(updated as IUser);
 
-      const result = await controller.update('user123', dto as any);
+      const result = await controller.update(USER_ID, dto as any, selfReq as any);
 
-      expect(service.updateUser).toHaveBeenCalledWith('user123', dto);
+      expect(service.updateUser).toHaveBeenCalledWith(USER_ID, dto);
       expect(result).toHaveProperty('username', 'updateduser');
+    });
+
+    it('should allow an admin to update any profile', async () => {
+      const dto = { username: 'adminchange' };
+      jest.spyOn(service, 'updateUser').mockResolvedValue({ ...exampleUser, ...dto } as IUser);
+
+      const result = await controller.update(USER_ID, dto as any, adminReq as any);
+
+      expect(result).toHaveProperty('username', 'adminchange');
+    });
+
+    it('should throw ForbiddenException when updating another user\'s profile', async () => {
+      await expect(
+        controller.update(USER_ID, { username: 'hack' } as any, strangerReq as any)
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(service.updateUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('remove', () => {
+    it('should allow a user to delete their own account', async () => {
+      jest.spyOn(service, 'deleteUser').mockResolvedValue(undefined);
+
+      await controller.remove(USER_ID, selfReq as any);
+
+      expect(service.deleteUser).toHaveBeenCalledWith(USER_ID);
+    });
+
+    it('should allow an admin to delete any account', async () => {
+      jest.spyOn(service, 'deleteUser').mockResolvedValue(undefined);
+
+      await controller.remove(USER_ID, adminReq as any);
+
+      expect(service.deleteUser).toHaveBeenCalledWith(USER_ID);
+    });
+
+    it('should throw ForbiddenException when deleting another user\'s account', async () => {
+      await expect(
+        controller.remove(USER_ID, strangerReq as any)
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(service.deleteUser).not.toHaveBeenCalled();
     });
   });
 });

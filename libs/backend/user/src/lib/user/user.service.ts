@@ -48,6 +48,11 @@ export class UserService {
     return this.mapUser(userObject);
   }
 
+  async deleteUser(_id: string): Promise<void> {
+    this.logger.log(`Deleting user with id ${_id}`);
+    await this.userModel.findByIdAndDelete(_id).exec();
+  }
+
   async updateUser(_id: string, updateUserDto: UpdateUserDto): Promise<IUserInfo | null> {
     const currentUser = await this.userModel.findById(_id);
     if (!currentUser) {

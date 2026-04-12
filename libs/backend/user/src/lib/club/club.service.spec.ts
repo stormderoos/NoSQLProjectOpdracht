@@ -22,8 +22,11 @@ mockClubModel.findById = jest.fn(() => ({ lean: mockLean, exec: mockExec }));
 mockClubModel.findByIdAndUpdate = jest.fn(() => ({ lean: mockLean }));
 mockClubModel.findByIdAndDelete = jest.fn(() => ({ lean: mockLean }));
 
+const mockAggregateExec = jest.fn();
+
 const mockPlayerModel = {
   find: jest.fn(() => ({ lean: mockLean })),
+  aggregate: jest.fn(() => ({ exec: mockAggregateExec })),
 } as any;
 
 const mockMatchModel = {
@@ -151,6 +154,75 @@ describe('ClubService', () => {
       mockExec.mockResolvedValueOnce(null);
 
       await expect(service.delete('nonexistent')).rejects.toThrow(HttpException);
+    });
+  });
+
+  // ── D2: getClubStats (aggregate pipeline) ────────────────────────────────
+  describe('getClubStats (D2)', () => {
+    it('should return aggregated stats for a club', async () => {
+      mockAggregateExec.mockResolvedValueOnce([
+        {
+          _id: 'club123',
+          totalPlayers: 3,
+          totalGoals: 45,
+          totalAssists: 12,
+          avgGoals: 15,
+          topScorer: { firstName: 'Erling', lastName: 'Haaland', goals: 30 },
+        },
+      ]);
+
+      const result = await service.getClubStats('club123');
+
+      expect(result.clubId).toBe('club123');
+      expect(result.totalPlayers).toBe(3);
+      expect(result.totalGoals).toBe(45);
+      expect(result.totalAssists).toBe(12);
+      expect(result.avgGoals).toBe(15);
+      expect(result.topScorer).toEqual({ firstName: 'Erling', lastName: 'Haaland', goals: 30 });
+    });
+
+    it('should round avgGoals to 1 decimal place', async () => {
+      mockAggregateExec.mockResolvedValueOnce([
+        {
+          _id: 'club123',
+          totalPlayers: 3,
+          totalGoals: 10,
+          totalAssists: 4,
+          avgGoals: 3.3333,
+          topScorer: null,
+        },
+      ]);
+
+      const result = await service.getClubStats('club123');
+
+      expect(result.avgGoals).toBe(3.3);
+    });
+
+    it('should return zeroed stats when club has no players', async () => {
+      mockAggregateExec.mockResolvedValueOnce([]);
+
+      const result = await service.getClubStats('club123');
+
+      expect(result).toEqual({
+        clubId: 'club123',
+        totalPlayers: 0,
+        totalGoals: 0,
+        totalAssists: 0,
+        avgGoals: 0,
+        topScorer: null,
+      });
+    });
+
+    it('should call aggregate with $match on clubId', async () => {
+      mockAggregateExec.mockResolvedValueOnce([]);
+
+      await service.getClubStats('club999');
+
+      expect(mockPlayerModel.aggregate).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ $match: { clubId: 'club999' } }),
+        ]),
+      );
     });
   });
 });

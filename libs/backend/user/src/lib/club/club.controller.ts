@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { ClubService } from './club.service';
 import { IClub, IFindClub, IFindPlayer, IFindMatch } from '@avans-nx-workshop/shared/api';
 import { CreateClubDto, UpdateClubDto } from '@avans-nx-workshop/backend/dto';
@@ -21,21 +21,31 @@ export class ClubController {
 
   @Post('')
   @UseGuards(ClubExistGuard)
-  create(@Body() club: CreateClubDto): Promise<IFindClub> {
+  create(@Body() club: CreateClubDto, @Request() req: any): Promise<IFindClub> {
+    club.createdBy = req.user.user_id.toString();
     return this.clubService.create(club);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() club: UpdateClubDto,
+    @Request() req: any,
   ): Promise<IFindClub | null> {
+    const existing = await this.clubService.findOne(id); // throws NotFoundException when not found
+    if (existing!.createdBy !== req.user.user_id.toString() && req.user.role !== 'admin') {
+      throw new ForbiddenException('Je mag alleen je eigen clubs aanpassen');
+    }
     return this.clubService.update(id, club);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteClub(@Param('id') id: string) {
+  async deleteClub(@Param('id') id: string, @Request() req: any) {
+    const existing = await this.clubService.findOne(id); // throws NotFoundException when not found
+    if (existing!.createdBy !== req.user.user_id.toString() && req.user.role !== 'admin') {
+      throw new ForbiddenException('Je mag alleen je eigen clubs verwijderen');
+    }
     await this.clubService.delete(id);
   }
 
@@ -47,6 +57,12 @@ export class ClubController {
   @Get(':id/matches')
   getClubMatches(@Param('id') id: string): Promise<IFindMatch[]> {
     return this.clubService.findMatchesByClub(id);
+  }
+
+  // D2: GET /clubs/:id/stats — aggregate pipeline over spelers van een club
+  @Get(':id/stats')
+  getClubStats(@Param('id') id: string) {
+    return this.clubService.getClubStats(id);
   }
 
 }

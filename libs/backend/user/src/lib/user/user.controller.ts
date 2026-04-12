@@ -2,11 +2,13 @@ import {
     Body,
     Controller,
     Delete,
+    ForbiddenException,
     Get,
     NotFoundException,
     Param,
     Post,
     Put,
+    Request,
     UseGuards
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -35,10 +37,25 @@ export class UserController {
     }
 
     @Put(':id')
-    update(
+    async update(
         @Param('id') id: string,
-        @Body() user: UpdateUserDto
+        @Body() user: UpdateUserDto,
+        @Request() req: any,
     ): Promise<IUserInfo | null> {
+        if (id !== req.user.user_id.toString() && req.user.role !== 'admin') {
+            throw new ForbiddenException('Je mag alleen je eigen profiel aanpassen');
+        }
         return this.userService.updateUser(id, user);
+    }
+
+    @Delete(':id')
+    async remove(
+        @Param('id') id: string,
+        @Request() req: any,
+    ): Promise<void> {
+        if (id !== req.user.user_id.toString() && req.user.role !== 'admin') {
+            throw new ForbiddenException('Je mag alleen je eigen account verwijderen');
+        }
+        await this.userService.deleteUser(id);
     }
 }
