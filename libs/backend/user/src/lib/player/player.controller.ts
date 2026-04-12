@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Delete, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, Patch, Query } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto, UpdatePlayerDto } from '@avans-nx-workshop/backend/dto';
 import { Player } from './player.schema';
@@ -7,9 +7,36 @@ import { Player } from './player.schema';
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
+  // D3: GET /players?position=ST,RW&minGoals=5&maxGoals=20&sortBy=goals&order=desc
+  // Als er query-params zijn → search(), anders → findAll()
   @Get()
-  async findAll(): Promise<Player[]> {
+  async findAll(
+    @Query('position') position?: string,
+    @Query('clubId') clubId?: string,
+    @Query('minGoals') minGoals?: string,
+    @Query('maxGoals') maxGoals?: string,
+    @Query('sortBy') sortBy?: 'goals' | 'assists',
+    @Query('order') order?: 'asc' | 'desc',
+  ): Promise<Player[]> {
+    const hasFilters = position || clubId || minGoals || maxGoals || sortBy;
+    if (hasFilters) {
+      return this.playerService.search({
+        position,
+        clubId,
+        minGoals: minGoals !== undefined ? Number(minGoals) : undefined,
+        maxGoals: maxGoals !== undefined ? Number(maxGoals) : undefined,
+        sortBy,
+        order,
+      });
+    }
     return this.playerService.findAll();
+  }
+
+  // D2: GET /players/top-scorers?limit=10 — aggregate pipeline
+  // Let op: moet VOOR :id staan, anders wordt 'top-scorers' als id gezien
+  @Get('top-scorers')
+  async getTopScorers(@Query('limit') limit?: string): Promise<any[]> {
+    return this.playerService.getTopScorers(limit ? Number(limit) : 10);
   }
 
   @Get(':id')

@@ -8,9 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-
 import { IUserCredentials, IUserIdentity } from '@avans-nx-workshop/shared/api';
 import { CreateUserDto } from '@avans-nx-workshop/backend/dto';
+import { Neo4jUsersService } from '@avans-nx-workshop/backend/neo4j';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,8 @@ export class AuthService {
 
   constructor(
     @InjectModel('User') private userModel: Model<any>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private neo4jUsersService: Neo4jUsersService,
   ) {}
 
   async login(credentials: IUserCredentials): Promise<IUserIdentity> {
@@ -57,12 +58,29 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
 
-    const newUser = await this.userModel.create(dto);
+    // Sla gebruiker op in MongoDB (pre-save hook hasht het wachtwoord)
+    const newUser = await this.userModel.create({ ...dto });
 
     const payload = {
       user_id: newUser._id,
       role: newUser.role,
     };
+
+    // Maak ook een Neo4j node aan voor deze gebruiker
+    // Als Neo4j faalt, loggen we de fout maar geven we wel de identity terug
+    // zodat de registratie niet blokkeert door een Neo4j probleem (Q3)
+    try {
+      await this.neo4jUsersService.createUserNode(
+        newUser._id.toString(),
+        newUser.username,
+      );
+      this.logger.log(`Neo4j node created for user ${newUser._id}`);
+    } catch (err) {
+      this.logger.error(
+        `Failed to create Neo4j node for user ${newUser._id}: ${err}`,
+      );
+      // MongoDB user is al aangemaakt, we gaan door maar loggen de fout
+    }
 
     return {
       id: newUser.id,

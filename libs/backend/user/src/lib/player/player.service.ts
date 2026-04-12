@@ -15,6 +15,62 @@ export class PlayerService {
     return this.playerModel.find().lean().exec();
   }
 
+  // D3: query operators — $in, $gte, $lte
+  async search(filters: {
+    position?: string;   // kommagescheiden: "ST,RW,LW"
+    clubId?: string;
+    minGoals?: number;
+    maxGoals?: number;
+    sortBy?: 'goals' | 'assists';
+    order?: 'asc' | 'desc';
+  }): Promise<Player[]> {
+    this.logger.log(`Searching players with filters: ${JSON.stringify(filters)}`);
+    const query: Record<string, any> = {};
+
+    if (filters.position) {
+      const positions = filters.position.split(',').map(p => p.trim()).filter(Boolean);
+      // $in operator: meerdere posities tegelijk filteren
+      query['position'] = positions.length === 1 ? positions[0] : { $in: positions };
+    }
+
+    if (filters.clubId) {
+      query['clubId'] = filters.clubId;
+    }
+
+    // $gte en $lte voor goals range
+    if (filters.minGoals !== undefined || filters.maxGoals !== undefined) {
+      query['goals'] = {};
+      if (filters.minGoals !== undefined) query['goals']['$gte'] = Number(filters.minGoals);
+      if (filters.maxGoals !== undefined) query['goals']['$lte'] = Number(filters.maxGoals);
+    }
+
+    const sort: Record<string, 1 | -1> = {};
+    if (filters.sortBy) {
+      sort[filters.sortBy] = filters.order === 'asc' ? 1 : -1;
+    }
+
+    return this.playerModel.find(query).sort(sort).lean().exec();
+  }
+
+  // D2: aggregate pipeline — top scorers gesorteerd op goals + assists
+  async getTopScorers(limit = 10): Promise<any[]> {
+    this.logger.log(`Fetching top ${limit} scorers via aggregate`);
+    return this.playerModel.aggregate([
+      { $match: { goals: { $gt: 0 } } },
+      { $sort: { goals: -1, assists: -1 } },
+      { $limit: Number(limit) },
+      { $project: {
+        _id: 1,
+        firstName: 1,
+        lastName: 1,
+        position: 1,
+        clubId: 1,
+        goals: 1,
+        assists: 1,
+      }},
+    ]).exec();
+  }
+
   async findOne(id: string): Promise<Player | null> {
     this.logger.log(`Fetching player with ID: ${id}`);
     return this.playerModel.findById(id).lean().exec();

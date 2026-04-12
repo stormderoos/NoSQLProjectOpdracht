@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { Neo4JPlayerService } from './neo4j-stats.service';
+import { Neo4JStatsService } from './neo4j-stats.service';
 
 @Controller('neo4j/stats')
 export class Neo4JStatsController {
-  constructor(private readonly neo4jStatsService: Neo4JPlayerService) {}
+  constructor(private readonly neo4jStatsService: Neo4JStatsService) {}
 
   @Get('player/:playerId')
   async getPlayerStats(@Param('playerId') playerId: string): Promise<{ goals: number; assists: number }> {

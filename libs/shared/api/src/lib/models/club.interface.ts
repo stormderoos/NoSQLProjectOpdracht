@@ -9,8 +9,8 @@ export interface IClub {
     createdBy?: string;
 }
 
-export type IFindClub = Pick<IClub, 'name' | 'location' | 'logoUrl'| 'players'>;
+export type IFindClub = Pick<IClub, 'name' | 'location' | 'logoUrl' | 'players' | 'createdBy'>;
 
-export type ICreateClub = Pick<IClub, 'name' | 'location' | 'logoUrl'| 'players'>;
+export type ICreateClub = Pick<IClub, 'name' | 'location' | 'logoUrl' | 'players' | 'createdBy'>;
 
 

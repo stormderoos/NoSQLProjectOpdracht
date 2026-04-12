@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Neo4jService } from 'nest-neo4j';
 
 @Injectable()
-export class Neo4JPlayerService {
-  private readonly logger = new Logger(Neo4JPlayerService.name);
+export class Neo4JStatsService {
+  private readonly logger = new Logger(Neo4JStatsService.name);
 
   constructor(private readonly neo4jService: Neo4jService) {}
 

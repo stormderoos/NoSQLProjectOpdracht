@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Club as ClubModel, ClubDocument } from './club.schema';
@@ -28,9 +28,10 @@ export class ClubService {
     this.logger.log(`Finding club with id ${_id}`);
     
     const club = await this.clubModel.findOne({ _id }).lean().exec();
-    
+
     if (!club) {
       this.logger.debug(`Club with id ${_id} not found`);
+      throw new NotFoundException(`Club with id ${_id} not found`);
     }
     return club;
   }
@@ -101,5 +102,53 @@ export class ClubService {
     return this.matchModel.find({
       $or: [{ home_club_id: clubId }, { away_club_id: clubId }],
     }).lean().exec();
+  }
+
+  // Haal meerdere clubs op via een lijst van IDs (gebruikt door Neo4j integratie)
+  async findManyByIds(ids: string[]): Promise<IFindClub[]> {
+    if (!ids.length) return [];
+    return this.clubModel
+      .find({ _id: { $in: ids } })
+      .lean()
+      .exec();
+  }
+
+  // D2: aggregate pipeline — statistieken per club (spelers, goals, assists)
+  async getClubStats(clubId: string): Promise<{
+    clubId: string;
+    totalPlayers: number;
+    totalGoals: number;
+    totalAssists: number;
+    avgGoals: number;
+    topScorer: { firstName: string; lastName: string; goals: number } | null;
+  }> {
+    this.logger.log(`Getting stats for club ${clubId}`);
+
+    const result = await this.playerModel.aggregate([
+      { $match: { clubId: clubId } },
+      { $sort: { goals: -1 } },
+      { $group: {
+        _id: '$clubId',
+        totalPlayers: { $sum: 1 },
+        totalGoals:   { $sum: '$goals' },
+        totalAssists: { $sum: '$assists' },
+        avgGoals:     { $avg: '$goals' },
+        topScorer:    { $first: { firstName: '$firstName', lastName: '$lastName', goals: '$goals' } },
+      }},
+    ]).exec();
+
+    if (!result.length) {
+      return { clubId, totalPlayers: 0, totalGoals: 0, totalAssists: 0, avgGoals: 0, topScorer: null };
+    }
+
+    const r = result[0];
+    return {
+      clubId,
+      totalPlayers: r.totalPlayers,
+      totalGoals:   r.totalGoals,
+      totalAssists: r.totalAssists,
+      avgGoals:     Math.round(r.avgGoals * 10) / 10,
+      topScorer:    r.topScorer,
+    };
   }
 }

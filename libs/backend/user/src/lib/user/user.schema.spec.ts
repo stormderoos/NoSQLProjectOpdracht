@@ -1,109 +1,103 @@
-import { Test } from '@nestjs/testing';
+jest.mock('bcrypt', () => ({
+  genSalt: jest.fn().mockResolvedValue('salt'),
+  hash: jest.fn().mockResolvedValue('hashed'),
+  compare: jest.fn().mockResolvedValue(true),
+}));
 
-import { Model, disconnect } from 'mongoose';
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { validate, version } from 'uuid';
+import mongoose from 'mongoose';
+import { UserSchema } from './user.schema';
 
-import { User, UserDocument, UserSchema } from "./user.schema";
+// Create a local model without a DB connection.
+// validateSync() is purely in-memory and does not require a connection.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const UserModel = mongoose.model<any>('UserSpec', UserSchema as any);
 
 describe('User Schema', () => {
-  let mongod: MongoMemoryServer;
-  let userModel: Model<UserDocument>;
+  describe('required fields', () => {
+    it('should fail validation when username is missing', () => {
+      const user = new UserModel({ email: 'test@test.com', password: 'secret' } as any);
+      const err = user.validateSync();
+      expect(err).toBeDefined();
+      expect(err!.errors['username']).toBeDefined();
+    });
 
-  beforeAll(async () => {
-    const app = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRootAsync({
-          useFactory: async () => {
-            mongod = await MongoMemoryServer.create();
-            const uri = mongod.getUri();
-            return {uri};
-          },
-        }),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
-      ],
-    }).compile();
+    it('should fail validation when email is missing', () => {
+      const user = new UserModel({ username: 'testuser', password: 'secret' } as any);
+      const err = user.validateSync();
+      expect(err).toBeDefined();
+      expect(err!.errors['email']).toBeDefined();
+    });
 
-    userModel = app.get<Model<UserDocument>>(getModelToken(User.name));
+    it('should fail validation when password is missing', () => {
+      const user = new UserModel({ username: 'testuser', email: 'test@test.com' } as any);
+      const err = user.validateSync();
+      expect(err).toBeDefined();
+      expect(err!.errors['password']).toBeDefined();
+    });
 
-    // not entirely sure why we need to wait for this...
-    // https://github.com/nodkz/mongodb-memory-server/issues/102
-    await userModel.ensureIndexes();
+    it('should pass validation with username, email and password', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+      } as any);
+      const err = user.validateSync();
+      expect(err).toBeUndefined();
+    });
   });
 
-  afterAll(async () => {
-    await disconnect();
-    await mongod.stop();
+  describe('default values', () => {
+    it('should have role "user" by default', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+      } as any);
+      expect((user as any).role).toBe('user');
+    });
+
+    it('should have a default profileImgUrl', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+      } as any);
+      expect((user as any).profileImgUrl).toBeDefined();
+      expect(typeof (user as any).profileImgUrl).toBe('string');
+    });
+
+    it('should have an empty string as default gender', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+      } as any);
+      expect((user as any).gender).toBe('');
+    });
   });
 
-  it('has a default uuid v4 as id', () => {
-    const model = new userModel();
+  describe('role validation', () => {
+    it('should fail with an invalid role', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+        role: 'InvalidRole',
+      } as any);
+      const err = user.validateSync();
+      expect(err).toBeDefined();
+      expect(err!.errors['role']).toBeDefined();
+    });
 
-    expect(validate(model.id)).toBeTruthy();
-    expect(version(model.id)).toBe(4);
-  });
-
-  it('has a required username', () => {
-    const model = new userModel();
-
-    const err = model.validateSync();
-
-    expect(err.errors.name).toBeInstanceOf(Error);
-  });
-
-  it('has a unique username', async () => {
-    const original = new userModel({name: 'henk', emailAddress: 'henk@henk.nl'});
-    const duplicate = new userModel({name: 'henk', emailAddress: 'henk@henk.nl'});
-
-    await original.save();
-
-    await expect(duplicate.save()).rejects.toThrow();
-  });
-
-  it('has an empty role list by default', () => {
-    const model = new userModel();
-
-    expect(model.roles).toStrictEqual([]);
-  });
-
-  it('is active by default', () => {
-    const model = new userModel();
-
-    expect(model.isActive).toBe(true);
-  });
-
-  it('has a required email address', () => {
-    const model = new userModel();
-
-    const err = model.validateSync();
-
-    expect(err.errors.emailAddress).toBeInstanceOf(Error);
-  });
-
-  it('does not accept an invalid email address', () => {
-    const model = new userModel({emailAddress: 'ditisgeenemail'});
-
-    const err = model.validateSync();
-
-    expect(err.errors.emailAddress).toBeInstanceOf(Error);
-  });
-
-  it('has an empty list as default tutor topics', () => {
-    const model = new userModel();
-
-    expect(model.tutorTopics).toStrictEqual([]);
-  });
-
-  it('has an empty list as default pupil topics', () => {
-    const model = new userModel();
-
-    expect(model.pupilTopics).toStrictEqual([]);
-  });
-
-  it('has an empty list as default meetups', () => {
-    const model = new userModel();
-
-    expect(model.meetups).toStrictEqual([]);
+    it('should accept "admin" as role', () => {
+      const user = new UserModel({
+        username: 'testuser',
+        email: 'test@test.com',
+        password: 'secret',
+        role: 'admin',
+      } as any);
+      const err = user.validateSync();
+      expect(err).toBeUndefined();
+    });
   });
 });

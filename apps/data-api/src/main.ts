@@ -13,6 +13,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
+      'http://localhost:4200',
       'https://jolly-meadow-00d0ed103.5.azurestaticapps.net'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -26,7 +27,7 @@ async function bootstrap() {
   Logger.log('Running in production mode?', environment.production);
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   const appUrl = await app.getUrl();
   Logger.log(`🚀 DATA-API server is running on: ${appUrl}/api`);
