@@ -6,7 +6,7 @@ import { Club } from './club.schema';
 import { Player } from '../player/player.schema';
 import { Match } from '../match/match.schema';
 
-// Helpers to build mock Mongoose chain: model.find().lean().exec()
+// Helpers voor Mongoose chain: model.find().lean().exec()
 const mockExec = jest.fn();
 const mockLean = jest.fn(() => ({ exec: mockExec }));
 
@@ -99,9 +99,7 @@ describe('ClubService', () => {
 
   describe('create', () => {
     it('should create and return a new club', async () => {
-      // No players to validate
-      mockExec.mockResolvedValueOnce([]); // playerModel.find().lean().exec()
-      // Mongoose save() returns the saved document, so we return mockClubInstance itself
+      mockExec.mockResolvedValueOnce([]);
       mockClubInstance.save.mockResolvedValueOnce(mockClubInstance);
       mockClubInstance.toObject.mockReturnValueOnce(exampleClub);
 
@@ -126,8 +124,8 @@ describe('ClubService', () => {
   describe('update', () => {
     it('should update and return the updated club', async () => {
       const updated = { ...exampleClub, location: 'Rotterdam' };
-      mockExec.mockResolvedValueOnce([]); // playerModel.find
-      mockExec.mockResolvedValueOnce(updated); // findByIdAndUpdate
+      mockExec.mockResolvedValueOnce([]);
+      mockExec.mockResolvedValueOnce(updated);
 
       const result = await service.update('club123', { location: 'Rotterdam' } as any);
 
@@ -157,8 +155,7 @@ describe('ClubService', () => {
     });
   });
 
-  // ── D2: getClubStats (aggregate pipeline) ────────────────────────────────
-  describe('getClubStats (D2)', () => {
+  describe('getClubStats', () => {
     it('should return aggregated stats for a club', async () => {
       mockAggregateExec.mockResolvedValueOnce([
         {
