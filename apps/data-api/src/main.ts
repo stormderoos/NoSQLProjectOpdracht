@@ -30,7 +30,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   const appUrl = await app.getUrl();
-  Logger.log(`🚀 DATA-API server is running on: ${appUrl}/api`);
+  Logger.log(`DATA-API server is running on: ${appUrl}/api`);
 }
 
 bootstrap();

@@ -10,4 +10,5 @@ export const environment: IEnvironment = {
     NEO4J_URI: 'neo4j+s://98870026.databases.neo4j.io',
     NEO4J_USER: '98870026',
     NEO4J_PASSWORD: '8eJ-M_l051tvUwhWrlGnIDCRXx1aHI02fcI7jJaQoEE',
+    NEO4J_DATABASE: '98870026',
 };

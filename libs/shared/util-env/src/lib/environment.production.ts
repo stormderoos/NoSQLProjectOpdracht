@@ -8,12 +8,7 @@ export const environment: IEnvironment = {
     NEO4J_URI: 'neo4j+s://98870026.databases.neo4j.io',
     NEO4J_USER: '98870026',
     NEO4J_PASSWORD: '8eJ-M_l051tvUwhWrlGnIDCRXx1aHI02fcI7jJaQoEE',
+    NEO4J_DATABASE: '98870026',
 };
 
-// export const environment: IEnvironment = {
-//     production: false,
-//     ROOT_DOMAIN_URL: 'https://jolly-meadow-00d0ed103.5.azurestaticapps.net',
-//     dataApiUrl: 'https://nx-worskhop-nestjs-acdcg6hqd9b4cja2.westeurope-01.azurewebsites.net/api',
-//     MONGO_DB_CONNECTION_STRING: 'mongodb+srv://swderoos:swWelkom01!@footballdbcluster.vsocs.mongodb.net/',
-// };
 

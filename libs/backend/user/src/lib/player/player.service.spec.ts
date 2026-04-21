@@ -4,7 +4,6 @@ import { NotFoundException } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { Player } from './player.schema';
 
-// Helpers voor Mongoose chain-mocking: find().lean().exec() en find().sort().lean().exec()
 const mockExec = jest.fn();
 const mockLean = jest.fn(() => ({ exec: mockExec }));
 const mockSort = jest.fn(() => ({ lean: mockLean }));
@@ -49,7 +48,6 @@ describe('PlayerService', () => {
     service = module.get<PlayerService>(PlayerService);
   });
 
-  // ── findAll ──────────────────────────────────────────────────────────────
   describe('findAll', () => {
     it('should return all players', async () => {
       mockExec.mockResolvedValueOnce([examplePlayer]);
@@ -58,7 +56,7 @@ describe('PlayerService', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]).toHaveProperty('firstName', 'Erling');
-      expect(mockPlayerModel.find).toHaveBeenCalledWith(); // no args
+      expect(mockPlayerModel.find).toHaveBeenCalledWith();
     });
 
     it('should return empty array when no players', async () => {
@@ -70,7 +68,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── findOne ───────────────────────────────────────────────────────────────
   describe('findOne', () => {
     it('should return a player when found', async () => {
       mockExec.mockResolvedValueOnce(examplePlayer);
@@ -90,7 +87,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── create ────────────────────────────────────────────────────────────────
   describe('create', () => {
     it('should create and return a new player', async () => {
       mockPlayerInstance.save.mockResolvedValueOnce(examplePlayer);
@@ -109,7 +105,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── update ────────────────────────────────────────────────────────────────
   describe('update', () => {
     it('should update and return the updated player', async () => {
       const updated = { ...examplePlayer, goals: 35 };
@@ -126,7 +121,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── remove ────────────────────────────────────────────────────────────────
   describe('remove', () => {
     it('should delete a player without returning a value', async () => {
       mockExec.mockResolvedValueOnce(null);
@@ -136,7 +130,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── findByClub ────────────────────────────────────────────────────────────
   describe('findByClub', () => {
     it('should return players belonging to the given club', async () => {
       mockExec.mockResolvedValueOnce([examplePlayer]);
@@ -148,7 +141,6 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── getPlayerStats ────────────────────────────────────────────────────────
   describe('getPlayerStats', () => {
     it('should return goals and assists for a player', async () => {
       mockExec.mockResolvedValueOnce(examplePlayer);
@@ -165,12 +157,11 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── D2: getTopScorers (aggregate pipeline) ────────────────────────────────
-  describe('getTopScorers (D2)', () => {
+  describe('getTopScorers', () => {
     it('should return top 10 scorers via aggregate pipeline', async () => {
       const topScorers = [
         { ...examplePlayer, goals: 30 },
-        { _id: 'player2', firstName: 'Kylian', lastName: 'Mbappé', position: 'LW', goals: 25, assists: 12 },
+        { _id: 'player2', firstName: 'Kylian', lastName: 'Mbappe', position: 'LW', goals: 25, assists: 12 },
       ];
       mockAggregateExec.mockResolvedValueOnce(topScorers);
 
@@ -208,8 +199,7 @@ describe('PlayerService', () => {
     });
   });
 
-  // ── D3: search (query operators: $in, $gte, $lte) ─────────────────────────
-  describe('search (D3)', () => {
+  describe('search', () => {
     it('should filter by single position', async () => {
       mockExec.mockResolvedValueOnce([examplePlayer]);
 

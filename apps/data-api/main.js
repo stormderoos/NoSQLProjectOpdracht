@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
-/* 0 */,
+/* 0 */
 /* 1 */
 /***/ ((module) => {
 
