@@ -2,14 +2,11 @@ import mongoose from 'mongoose';
 import neo4j from 'neo4j-driver';
 import * as bcrypt from 'bcrypt';
 
-const MONGO_URI =
-  process.env['MONGO_DB_CONNECTION_STRING'] ||
-  'mongodb+srv://swderoos:swWelkom01!@footballdbcluster.vsocs.mongodb.net/football?retryWrites=true&w=majority';
-
-const NEO4J_URI      = process.env['NEO4J_URI']      || 'neo4j+s://98870026.databases.neo4j.io';
-const NEO4J_USER     = process.env['NEO4J_USER']     || '98870026';
-const NEO4J_PASSWORD = process.env['NEO4J_PASSWORD'] || '8eJ-M_l051tvUwhWrlGnIDCRXx1aHI02fcI7jJaQoEE';
-const NEO4J_DATABASE = process.env['NEO4J_DATABASE'] || '98870026';
+const MONGO_URI      = process.env['MONGO_DB_CONNECTION_STRING'] ?? '';
+const NEO4J_URI      = process.env['NEO4J_URI']      ?? '';
+const NEO4J_USER     = process.env['NEO4J_USER']     ?? '';
+const NEO4J_PASSWORD = process.env['NEO4J_PASSWORD'] ?? '';
+const NEO4J_DATABASE = process.env['NEO4J_DATABASE'] ?? '';
 
 const userSchema = new mongoose.Schema({
   username:      { type: String, required: true },

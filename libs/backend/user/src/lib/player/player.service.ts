@@ -15,7 +15,7 @@ export class PlayerService {
     return this.playerModel.find().lean().exec();
   }
 
-  // D3: query operators — $in, $gte, $lte
+  // D3: query operators - $in, $gte, $lte
   async search(filters: {
     position?: string;   // kommagescheiden: "ST,RW,LW"
     clubId?: string;
@@ -52,7 +52,7 @@ export class PlayerService {
     return this.playerModel.find(query).sort(sort).lean().exec();
   }
 
-  // D2: aggregate pipeline — top scorers gesorteerd op goals + assists
+  // D2: aggregate pipeline - top scorers gesorteerd op goals + assists
   async getTopScorers(limit = 10): Promise<any[]> {
     this.logger.log(`Fetching top ${limit} scorers via aggregate`);
     return this.playerModel.aggregate([

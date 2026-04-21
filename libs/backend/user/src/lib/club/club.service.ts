@@ -1,5 +1,5 @@
 import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Club as ClubModel, ClubDocument } from './club.schema';
 import { IFindClub, ICreateClub } from '@avans-nx-workshop/shared/api';
@@ -114,7 +114,7 @@ export class ClubService {
   }
 
   // D2: aggregate pipeline — statistieken per club (spelers, goals, assists)
-  async getClubStats(clubId: string): Promise<{
+  async    getClubStats(clubId: string): Promise<{
     clubId: string;
     totalPlayers: number;
     totalGoals: number;
@@ -124,8 +124,9 @@ export class ClubService {
   }> {
     this.logger.log(`Getting stats for club ${clubId}`);
 
+    const objectId = new Types.ObjectId(clubId);
     const result = await this.playerModel.aggregate([
-      { $match: { clubId: clubId } },
+      { $match: { clubId: { $in: [clubId, objectId] } } },
       { $sort: { goals: -1 } },
       { $group: {
         _id: '$clubId',
