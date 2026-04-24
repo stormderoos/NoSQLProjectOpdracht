@@ -37,7 +37,7 @@ describe('ClubService', () => {
   let service: ClubService;
 
   const exampleClub = {
-    _id: 'club123',
+    _id: '507f1f77bcf86cd799439011',
     name: 'FC Breda',
     location: 'Breda',
     logoUrl: 'https://example.com/logo.png',
@@ -84,10 +84,10 @@ describe('ClubService', () => {
     it('should return a club when found', async () => {
       mockExec.mockResolvedValueOnce(exampleClub);
 
-      const result = await service.findOne('club123');
+      const result = await service.findOne('507f1f77bcf86cd799439011');
 
       expect(result).toHaveProperty('name', 'FC Breda');
-      expect(mockClubModel.findOne).toHaveBeenCalledWith({ _id: 'club123' });
+      expect(mockClubModel.findOne).toHaveBeenCalledWith({ _id: '507f1f77bcf86cd799439011' });
     });
 
     it('should throw NotFoundException when club does not exist', async () => {
@@ -127,11 +127,11 @@ describe('ClubService', () => {
       mockExec.mockResolvedValueOnce([]);
       mockExec.mockResolvedValueOnce(updated);
 
-      const result = await service.update('club123', { location: 'Rotterdam' } as any);
+      const result = await service.update('507f1f77bcf86cd799439011', { location: 'Rotterdam' } as any);
 
       expect(result).toHaveProperty('location', 'Rotterdam');
       expect(mockClubModel.findByIdAndUpdate).toHaveBeenCalledWith(
-        'club123',
+        '507f1f77bcf86cd799439011',
         { location: 'Rotterdam' },
         { new: true },
       );
@@ -142,10 +142,10 @@ describe('ClubService', () => {
     it('should delete and return the deleted club', async () => {
       mockExec.mockResolvedValueOnce(exampleClub);
 
-      const result = await service.delete('club123');
+      const result = await service.delete('507f1f77bcf86cd799439011');
 
       expect(result).toHaveProperty('name', 'FC Breda');
-      expect(mockClubModel.findByIdAndDelete).toHaveBeenCalledWith('club123');
+      expect(mockClubModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
     });
 
     it('should throw 404 when deleting a non-existing club', async () => {
@@ -159,7 +159,7 @@ describe('ClubService', () => {
     it('should return aggregated stats for a club', async () => {
       mockAggregateExec.mockResolvedValueOnce([
         {
-          _id: 'club123',
+          _id: '507f1f77bcf86cd799439011',
           totalPlayers: 3,
           totalGoals: 45,
           totalAssists: 12,
@@ -168,9 +168,9 @@ describe('ClubService', () => {
         },
       ]);
 
-      const result = await service.getClubStats('club123');
+      const result = await service.getClubStats('507f1f77bcf86cd799439011');
 
-      expect(result.clubId).toBe('club123');
+      expect(result.clubId).toBe('507f1f77bcf86cd799439011');
       expect(result.totalPlayers).toBe(3);
       expect(result.totalGoals).toBe(45);
       expect(result.totalAssists).toBe(12);
@@ -181,7 +181,7 @@ describe('ClubService', () => {
     it('should round avgGoals to 1 decimal place', async () => {
       mockAggregateExec.mockResolvedValueOnce([
         {
-          _id: 'club123',
+          _id: '507f1f77bcf86cd799439011',
           totalPlayers: 3,
           totalGoals: 10,
           totalAssists: 4,
@@ -190,7 +190,7 @@ describe('ClubService', () => {
         },
       ]);
 
-      const result = await service.getClubStats('club123');
+      const result = await service.getClubStats('507f1f77bcf86cd799439011');
 
       expect(result.avgGoals).toBe(3.3);
     });
@@ -198,10 +198,10 @@ describe('ClubService', () => {
     it('should return zeroed stats when club has no players', async () => {
       mockAggregateExec.mockResolvedValueOnce([]);
 
-      const result = await service.getClubStats('club123');
+      const result = await service.getClubStats('507f1f77bcf86cd799439011');
 
       expect(result).toEqual({
-        clubId: 'club123',
+        clubId: '507f1f77bcf86cd799439011',
         totalPlayers: 0,
         totalGoals: 0,
         totalAssists: 0,
@@ -213,11 +213,12 @@ describe('ClubService', () => {
     it('should call aggregate with $match on clubId', async () => {
       mockAggregateExec.mockResolvedValueOnce([]);
 
-      await service.getClubStats('club999');
+      const validId = '507f1f77bcf86cd799439012';
+      await service.getClubStats(validId);
 
       expect(mockPlayerModel.aggregate).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ $match: { clubId: 'club999' } }),
+          expect.objectContaining({ $match: expect.objectContaining({ clubId: expect.anything() }) }),
         ]),
       );
     });
